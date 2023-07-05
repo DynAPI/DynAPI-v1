@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>DynAPI</title>
+    <title>DynAPI - redoc</title>
     <!-- needed for adaptive design -->
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,19 +17,20 @@
     </style>
   </head>
   <body>
+    <noscript>
+        ReDoc requires Javascript to function. Please enable it to browse the documentation.
+    </noscript>
     <div id="redoc"></div>
+{#    <redoc spec-url="openapi"></redoc>#}
 <!--    <script src="https://cdn.jsdelivr.net/npm/redoc/bundles/redoc.standalone.js"> </script>-->
     <script src="{{ url_for('static', filename='js/redoc.standalone.js') }}"> </script>
 
     <script>
+        {# https://redocly.com/docs/api-reference-docs/configuration/functionality/ #}
         Redoc.init("openapi", {
-            hideDownloadButton: true,
-            hideLoading: false
-        }, document.getElementById('redoc'), (error) => {
-          if (error) {
-            alert(`Something went wrong: ${error}`);
-          }
-        })
+            hideDownloadButton: false,
+            hideLoading: false,
+        }, document.getElementById('redoc'))
      </script>
   </body>
 </html>
