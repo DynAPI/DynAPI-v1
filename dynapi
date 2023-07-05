@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+THIS=$(dirname "$(realpath "$0")")
+
+cd "$THIS/src/dynapi/" || exit 1
+
+"$THIS/.venv/bin/python3" -B -O __main__.py "$@"
