@@ -11,6 +11,7 @@ import importlib
 import flask.json.tag
 from exceptions import DoNotImportException
 from apiconfig import config
+from util import Codes
 
 
 app = flask.Flask(
@@ -46,20 +47,20 @@ for root, dirnames, files in os.walk("routes", topdown=True):
         if ext != ".py":
             continue
         module_name = '.'.join([*root.split(os.sep), name])
-        print("Loading:", module_name)
+        print(f"{Codes.FG_DARK_GREY}Loading: {module_name}{Codes.RESTORE_FG}")
         try:
             module = importlib.import_module(module_name)
         except DoNotImportException:
-            print(f"Disabled: {module_name}")
+            print(f"{Codes.FG_YELLOW}Disabled: {module_name}{Codes.RESTORE_FG}")
         else:
             ROUTES.append(module)
 
 
 if __name__ == '__main__':
     app.run(
-        host=config.get("api", "host"),
-        port=config.getint("api", "port"),
-        debug=config.getboolean("api", "debug"),
+        host=config.get("api", "host", fallback="localhost"),
+        port=config.getint("api", "port", fallback=8080),
+        debug=config.getboolean("api", "debug", fallback=False),
         threaded=config.getboolean("api", "threaded", fallback=False),
         processes=config.getint("api", "processes", fallback=1)
     )
