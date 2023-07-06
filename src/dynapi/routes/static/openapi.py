@@ -6,6 +6,7 @@ r"""
 from __main__ import app, __version__, ROUTES
 import textwrap
 import datetime
+import traceback
 from collections import defaultdict
 from util import minicache
 
@@ -23,7 +24,7 @@ def openapi():
                 raise TypeError(f"{type(spec).__name__} is not of type dict")
         except Exception as exc:
             print(f"Failed to load openapi_spec from {route.__name__}")
-            print(f"{type(exc).__name__}: {exc}")
+            traceback.print_exception(type(exc), exc, exc.__traceback__)
         else:
             for path, path_spec in spec.items():
                 paths[path].update(path_spec)
