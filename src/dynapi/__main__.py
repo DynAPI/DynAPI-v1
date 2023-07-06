@@ -60,4 +60,6 @@ if __name__ == '__main__':
         host=config.get("api", "host"),
         port=config.getint("api", "port"),
         debug=config.getboolean("api", "debug"),
+        threaded=config.getboolean("api", "threaded", fallback=False),
+        processes=config.getint("api", "processes", fallback=1)
     )
