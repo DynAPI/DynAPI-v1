@@ -8,7 +8,8 @@ __version__ = '.'.join(str(_) for _ in __version_info__)
 
 import os
 import importlib
-import flask
+import flask.json.tag
+from exceptions import DoNotImportException
 from apiconfig import config
 
 
@@ -17,6 +18,7 @@ app = flask.Flask(
     static_folder="web",
     template_folder="web",
 )
+import register_adapter  # noqa
 
 
 # @app.errorhandler(Exception)
@@ -43,11 +45,14 @@ for root, dirnames, files in os.walk("routes", topdown=True):
         name, ext = os.path.splitext(filename)
         if ext != ".py":
             continue
-        module = '.'.join([*root.split(os.sep), name])
-        print("Loading:", module)
-        ROUTES.append(
-            importlib.import_module(module)
-        )
+        module_name = '.'.join([*root.split(os.sep), name])
+        print("Loading:", module_name)
+        try:
+            module = importlib.import_module(module_name)
+        except DoNotImportException:
+            print(f"Disabled: {module_name}")
+        else:
+            ROUTES.append(module)
 
 
 if __name__ == '__main__':
