@@ -6,6 +6,8 @@ r"""
 __version_info__ = (0, 0, 0)
 __version__ = '.'.join(str(_) for _ in __version_info__)
 
+import os
+import importlib
 import flask
 from apiconfig import config
 
@@ -30,15 +32,22 @@ def index():
     return {"Hello": "World"}
 
 
-import routes.static.redoc
-import routes.static.swagger
-import routes.static.openapi
+ROUTES = []
 
-import routes.meta.list_tables_meta
-import routes.meta.list_tables
-import routes.meta.list_columns
 
-import routes.generated.select_dynamic
+for root, dirnames, files in os.walk("routes", topdown=True):
+    for dirname in dirnames:
+        if dirname.startswith("_"):
+            dirnames.remove(dirname)
+    for filename in files:
+        name, ext = os.path.splitext(filename)
+        if ext != ".py":
+            continue
+        module = '.'.join([*root.split(os.sep), name])
+        print("Loading:", module)
+        ROUTES.append(
+            importlib.import_module(module)
+        )
 
 
 if __name__ == '__main__':
