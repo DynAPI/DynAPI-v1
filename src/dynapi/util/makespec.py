@@ -13,10 +13,11 @@ def format_table_name(name: str):
 
 def makespec(connection: DatabaseConnection, method: str, schemaname: str, tablename: str):
     return {
-        f'/{method}/{schemaname}/{tablename}': {
+        f'/query/{schemaname}/{tablename}': {
             f'{method}': {
-                'tags': ["Generated"],
-                'summary': f"{method}'s all information in {format_table_name(tablename)}",
+                'tags': [f"{format_table_name(schemaname)}/{format_table_name(tablename)}"],
+                'summary': format_table_name(tablename),
+                'description': f"{method} {format_table_name(tablename)}",
                 'responses': {
                     '200': {
                         'description': "Successful operation",

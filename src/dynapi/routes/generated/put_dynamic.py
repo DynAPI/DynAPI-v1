@@ -10,3 +10,4 @@ from apiconfig import config
 
 if not config.get("methods", "put"):
     raise DoNotImportException()
+
