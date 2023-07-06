@@ -22,8 +22,8 @@ class DatabaseConnection:
             database=config.get("database", "db_database"),
             user=config.get("database", "db_user"),
             password=config.get("database", "db_password"),
-            host=config.get("database", "db_host"),
-            port=config.getint("database", "db_port"),
+            host=config.get("database", "db_host", fallback="localhost"),
+            port=config.getint("database", "db_port", fallback=5432),
         )
         return self
 

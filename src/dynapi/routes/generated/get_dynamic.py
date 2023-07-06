@@ -14,7 +14,7 @@ from exceptions import DoNotImportException
 from util import makespec
 
 
-if not config.get("methods", "get"):
+if not config.get("methods", "get", fallback=False):
     raise DoNotImportException()
 
 
