@@ -5,30 +5,13 @@ r"""
 """
 import flask
 from __main__ import app
-from database import DatabaseConnection
+from database import DatabaseConnection, dbutil
 
 
-@app.route("/list-columns/<string:schema>/<string:tablename>")
-def columns(schema: str, tablename: str):
-    with DatabaseConnection() as conn:
-        cursor = conn.cursor()
-        cursor.execute(r"""
-        SELECT *
-        FROM information_schema.columns
-        WHERE table_schema = %s
-        AND table_name   = %s;
-        """, [schema, tablename])
-        return flask.jsonify([
-            dict(
-                column_name=row.column_name,
-                is_nullable=row.is_nullable,
-                data_type=row.data_type,
-                is_identity=row.is_identity,
-                is_generated=row.is_generated,
-                is_updatable=row.is_updatable
-            )
-            for row in cursor.fetchall()
-        ])
+@app.route("/list-columns/<string:schema>/<string:table>")
+def columns(schema: str, table: str):
+    with DatabaseConnection() as connection:
+        return flask.jsonify(dbutil.list_columns(connection=connection, schema=schema, table=table))
 
 
 def get_openapi_spec():
