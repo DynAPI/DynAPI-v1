@@ -16,8 +16,8 @@ class TableMeta:
 @dataclass(frozen=True)
 class TableColumn:
     name: str
-    is_nullable: str
     data_type: str
-    is_identity: str
-    is_generated: str
-    is_updatable: str
+    # is_nullable: str
+    # is_identity: str
+    # is_generated: str
+    # is_updatable: str

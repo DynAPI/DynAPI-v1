@@ -19,11 +19,7 @@ def list_columns(connection: DatabaseConnection, schema: str, table: str) -> t.L
     return [
         TableColumn(
             name=row.column_name,
-            is_nullable=row.is_nullable,
-            data_type=row.data_type,
-            is_identity=row.is_identity,
-            is_generated=row.is_generated,
-            is_updatable=row.is_updatable
+            data_type=row.data_type
         )
         for row in cursor.fetchall()
     ]
