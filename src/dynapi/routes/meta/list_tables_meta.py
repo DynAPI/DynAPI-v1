@@ -15,9 +15,11 @@ def list_tables_meta():
     meta_data = defaultdict(lambda: dict())
     with DatabaseConnection() as conn:
         for table in dbutil.list_tables(connection=conn):
-            meta_data[table.schema][table.table] = dbutil.list_columns(
-                connection=conn, schema=table.schema, table=table.table
-            )
+            cols = dbutil.list_columns(connection=conn, schema=table.schema, table=table.table)
+            meta_data[table.schema][table.table] = {
+                col.name: col
+                for col in cols
+            }
 
     response_format = request.args.get('format', 'short')
     if response_format == "short":

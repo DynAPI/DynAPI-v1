@@ -6,12 +6,17 @@ r"""
 import flask
 from __main__ import app
 from database import DatabaseConnection, dbutil
+from util.makespec import POSTGRES2OPENAPI
 
 
 @app.route("/list-columns/<string:schema>/<string:table>")
 def columns(schema: str, table: str):
     with DatabaseConnection() as connection:
-        return flask.jsonify(dbutil.list_columns(connection=connection, schema=schema, table=table))
+        cols = dbutil.list_columns(connection=connection, schema=schema, table=table)
+        return flask.jsonify({
+            col.name: POSTGRES2OPENAPI.get(col.data_type)['type']
+            for col in cols
+        })
 
 
 def get_openapi_spec():
