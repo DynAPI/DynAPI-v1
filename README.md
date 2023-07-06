@@ -1,6 +1,9 @@
 # DynAPI
 Dynamic API for (postgresql) Databases
 
+## Todo
+yaml files for routes.meta
+
 ## Endpoints
 
 ```bash

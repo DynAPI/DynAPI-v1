@@ -17,7 +17,7 @@ def openapi():
             if not isinstance(spec, dict):
                 raise TypeError(f"{type(spec).__name__} is not of type dict")
         except Exception as exc:
-            print(f"Failed to load openapi_spec from {route.__qualname__}")
+            print(f"Failed to load openapi_spec from {route.__name__}")
             print(f"{type(exc).__name__}: {exc}")
         else:
             paths.update(spec)
