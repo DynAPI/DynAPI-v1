@@ -26,3 +26,40 @@ def list_tables():
             )
             for row in cursor.fetchall()
         ])
+
+
+def get_openapi_spec():
+    return {
+        '/list-tables': {
+            'get': {
+                'tags': ["Meta"],
+                'summary': "Gets Schema and Table-names",
+                'responses': {
+                    '200': {
+                        'description': "Successful operation",
+                        'content': {
+                            "application/json": {
+                                'schema': {
+                                    'type': "array",
+                                    'items': {
+                                        'type': "object",
+                                        'properties': {
+                                            'schemaname': {
+                                                'type': "string",
+                                            },
+                                            'tablename': {
+                                                'type': "string",
+                                            },
+                                            'owner': {
+                                                'type': "string",
+                                            },
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }

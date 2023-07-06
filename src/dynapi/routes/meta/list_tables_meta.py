@@ -4,7 +4,7 @@ r"""
 
 """
 import flask
-
+from flask import request
 from __main__ import app
 from database import DatabaseConnection
 
@@ -45,32 +45,6 @@ def list_tables_meta():
                         is_updatable=row.is_updatable
                     )
 
-        # format: A
-        # {
-        #     schema: {
-        #         table: {
-        #             id: {},
-        #             name: {}
-        #         },
-        #     },
-        # }
-        # format: B
-        # [
-        #     {
-        #         schema_name: string,
-        #         tabels: [
-        #             {
-        #                 table_name: string
-        #                 columns: [
-        #                     {
-        #                         column_name: string
-        #                     }
-        #                 ]
-        #             }
-        #         ]
-        #     }
-        # ]
-
         response_format = request.args.get('format', 'short')
         if response_format == "short":
             return flask.jsonify(meta_data)
@@ -93,3 +67,144 @@ def list_tables_meta():
             ])
         else:
             raise KeyError(response_format)
+
+
+def get_openapi_spec():
+    def get_basic_meta(schema: dict, fmt: str):
+        return {
+            'get': {
+                'tags': ["Meta"],
+                'summary': f"Gets Schema with their Tables and columns ({fmt})",
+                'parameters': [
+                    {
+                        'name': "__format__",
+                        'in': "query",
+                        'description': "Response Format",
+                        'schema': dict(
+                            type="string",
+                            enum=["short", "long"],
+                            default="short",
+                            example=fmt,
+                        )
+                    },
+                ],
+                'responses': {
+                    '200': {
+                        'description': "Successful operation",
+                        'content': {
+                            "application/json": {
+                                'schema': schema
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    return {
+        # format: A
+        # {
+        #     schema: {
+        #         table: {
+        #             id: {},
+        #             name: {}
+        #         },
+        #     },
+        # }
+        '/list-tables-meta': get_basic_meta({
+            'type': "object",
+            'properties': {
+                'schema': {
+                    'type': "object",
+                    'properties': {
+                        'table': {
+                            'type': "object",
+                            'properties': {
+                                'column': {
+                                    'type': "object",
+                                    'properties': {
+                                        'is_nullable': {
+                                            'type': "string"
+                                        },
+                                        'data_type': {
+                                            'type': "string"
+                                        },
+                                        'is_identity': {
+                                            'type': "string"
+                                        },
+                                        'is_generated': {
+                                            'type': "string"
+                                        },
+                                        'is_updatable': {
+                                            'type': "string"
+                                        },
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }, "short"),
+        # format: B
+        # [
+        #     {
+        #         schema_name: string,
+        #         tabels: [
+        #             {
+        #                 table_name: string
+        #                 columns: [
+        #                     {
+        #                         column_name: string
+        #                     }
+        #                 ]
+        #             }
+        #         ]
+        #     }
+        # ]
+        '/list-tables-meta?__format__=long': get_basic_meta({
+            'type': "array",
+            'items': {
+                'type': "object",
+                'properties': {
+                    'schema_name': {
+                        'type': "string",
+                    },
+                    'tables': {
+                        'type': "array",
+                        'items': {
+                            'type': "object",
+                            'properties': {
+                                'table_name': {
+                                    'type': "string",
+                                },
+                                'columns': {
+                                    'type': "array",
+                                    'items': {
+                                        'type': "object",
+                                        'properties': {
+                                            'is_nullable': {
+                                                'type': "string"
+                                            },
+                                            'data_type': {
+                                                'type': "string"
+                                            },
+                                            'is_identity': {
+                                                'type': "string"
+                                            },
+                                            'is_generated': {
+                                                'type': "string"
+                                            },
+                                            'is_updatable': {
+                                                'type': "string"
+                                            },
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                },
+            }
+        }, "long")
+    }
