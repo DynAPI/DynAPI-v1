@@ -9,6 +9,12 @@ import datetime
 import traceback
 from collections import defaultdict
 from util import minicache
+from exceptions import DoNotImportException
+from apiconfig import config
+
+
+if not config.getboolean("web", "redoc", fallback=False) and not config.getboolean("web", "swagger", fallback=False):
+    raise DoNotImportException()
 
 
 @app.route("/openapi")

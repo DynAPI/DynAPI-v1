@@ -5,6 +5,12 @@ r"""
 """
 from __main__ import app
 import flask
+from exceptions import DoNotImportException
+from apiconfig import config
+
+
+if not config.getboolean("web", "swagger", fallback=False):
+    raise DoNotImportException()
 
 
 @app.route("/swagger")
