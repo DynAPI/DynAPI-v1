@@ -14,7 +14,7 @@ def list_tables():
         return flask.jsonify(dbutil.list_tables(connection=conn))
 
 
-def get_openapi_spec():
+def get_openapi_spec(_, __):
     return {
         '/list-tables': {
             'get': {
@@ -36,9 +36,9 @@ def get_openapi_spec():
                                             'tablename': {
                                                 'type': "string",
                                             },
-                                            'owner': dict(
-                                                type="string",
-                                            )
+                                            'owner': {
+                                                'type': "string",
+                                            }
                                         }
                                     }
                                 }

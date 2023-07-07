@@ -3,8 +3,8 @@
 r"""
 
 """
-import flask
 from __main__ import app
+import flask
 from database import DatabaseConnection, dbutil
 from util.makespec import POSTGRES2OPENAPI
 
@@ -19,7 +19,7 @@ def columns(schema: str, table: str):
         })
 
 
-def get_openapi_spec():
+def get_openapi_spec(_, __):
     return {
         '/list-columns/{schema}/{table}': {
             'get': {

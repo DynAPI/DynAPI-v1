@@ -3,7 +3,6 @@
 r"""
 
 """
-from collections import defaultdict
 import flask
 from flask import request
 from __main__ import app
@@ -12,14 +11,8 @@ from database import DatabaseConnection, dbutil
 
 @app.route("/list-tables-meta")
 def list_tables_meta():
-    meta_data = defaultdict(lambda: dict())
-    with DatabaseConnection() as conn:
-        for table in dbutil.list_tables(connection=conn):
-            cols = dbutil.list_columns(connection=conn, schema=table.schema, table=table.table)
-            meta_data[table.schema][table.table] = {
-                col.name: col
-                for col in cols
-            }
+    with DatabaseConnection() as connection:
+        meta_data = dbutil.list_tables_meta(connection=connection)
 
     response_format = request.args.get('format', 'short')
     if response_format == "short":
@@ -51,7 +44,7 @@ def transform_format_short2long(short):
     ]
 
 
-def get_openapi_spec():
+def get_openapi_spec(_, __):
     def get_basic_meta(schema: dict, fmt: str):
         return {
             'get': {
