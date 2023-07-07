@@ -4,14 +4,13 @@ r"""
 
 """
 import re
-from database import DatabaseConnection, dbutil
 
 
-def makespec(connection: DatabaseConnection, method: str, schemaname: str, tablename: str):
-    columns = dbutil.list_columns(connection=connection, schema=schemaname, table=tablename)
+def makespec(method: str, schemaname: str, tablename: str, columns):
+    columns = columns
 
     return {
-        f'/query/{schemaname}/{tablename}': {
+        f'/db/{schemaname}/{tablename}': {
             f'{method}': {
                 'tags': [f"{format_name(schemaname)}/{format_name(tablename)}"],
                 'summary': format_name(tablename),
@@ -19,11 +18,11 @@ def makespec(connection: DatabaseConnection, method: str, schemaname: str, table
                 'parameters': [
                     {
                         'in': "query",
-                        'name': col.name,
-                        'schema': POSTGRES2OPENAPI.get(col.data_type, col.data_type),
-                        'description': format_name(col.name),
+                        'name': col_name,
+                        'schema': POSTGRES2OPENAPI.get(data_type, data_type),
+                        'description': format_name(col_name),
                     }
-                    for col in columns
+                    for col_name, data_type in columns.items()
                 ] + [
                     {
                         'in': "query",
@@ -52,8 +51,8 @@ def makespec(connection: DatabaseConnection, method: str, schemaname: str, table
                                     'items': {
                                         'type': "object",
                                         'properties': {
-                                            col.name: POSTGRES2OPENAPI.get(col.data_type, col.data_type)
-                                            for col in columns
+                                            col_name: POSTGRES2OPENAPI.get(data_type, data_type)
+                                            for col_name, data_type in columns.items()
                                         }
                                     }
                                 }
@@ -63,6 +62,74 @@ def makespec(connection: DatabaseConnection, method: str, schemaname: str, table
                 }
             }
         }
+    }
+
+
+def makespec_extra(schemaname: str, tablename: str):
+    return {
+        f'/db/{schemaname}/{tablename}/count': {
+            f'get': {
+                'tags': [f"{format_name(schemaname)}/{format_name(tablename)}"],
+                'summary': f"Get count for {format_name(tablename)}",
+                # 'description': f"{method} {format_name(tablename)}",
+                'responses': {
+                    '200': {
+                        'description': "Successful operation",
+                        'content': {
+                            "application/json": {
+                                'schema': {
+                                    'type': "object",
+                                    'properties': {
+                                        'count': {
+                                            'type': "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        f'/db/{schemaname}/{tablename}/constraints': {
+            f'get': {
+                'tags': [f"{format_name(schemaname)}/{format_name(tablename)}"],
+                'summary': f"Get constraints for {format_name(tablename)}",
+                # 'description': f"{method} {format_name(tablename)}",
+                'responses': {
+                    '200': {
+                        'description': "Successful operation",
+                        'content': {
+                            "application/json": {
+                                'schema': {
+                                    'type': "object",
+                                    'properties': {
+                                        'constraint_name': {
+                                            'type': "string",
+                                        },
+                                        'constraint_type': {
+                                            'type': "string",
+                                        },
+                                        'referenced_table_name': {
+                                            'type': "string",
+                                        },
+                                        'referenced_column_name': {
+                                            'type': "string",
+                                        },
+                                        'data_type': {
+                                            'type': "string",
+                                        },
+                                        'is_updatable': {
+                                            'type': "string",
+                                        },
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
     }
 
 
