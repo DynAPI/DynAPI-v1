@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DynAPI</title>
+    <style>
+        body {
+            background-color: #22272e;
+            color: white;
+            text-align: center;
+            height: 100vh;
+            margin: 0;
+            user-select: none;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 3fr;
+        }
+        #title {
+            font-size: 10vw;
+            grid-column: 1 / 3;
+        }
+        #swagger {
+            grid-column: {{ "1" if redoc else "1 / 3" }};
+        }
+        #redoc {
+            grid-column: {{ "2" if swagger else "1 / 3" }};
+        }
+        body > a {
+            cursor: pointer;
+            display: block;
+            margin: auto;
+            width: fit-content;
+            height: fit-content;
+        }
+        body > a > img {
+            height: 40vh;
+        }
+        body > a > h2 {
+            font-size: 3vw;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">DynAPI</h1>
+    {% if swagger %}
+    <a id="swagger" href="/swagger">
+        <img src="{{ url_for("static", filename="assets/swagger-logo.svg") }}" alt="Swagger" />
+{#        <h2>Swagger</h2>#}
+    </a>
+    {% endif %}
+    {% if redoc %}
+    <a id="redoc" href="/redoc">
+        <img src="{{ url_for("static", filename="assets/redoc-logo.png") }}" alt="Redoc" />
+{#        <h2>Redoc</h2>#}
+    </a>
+    {% endif %}
+</body>
+</html>

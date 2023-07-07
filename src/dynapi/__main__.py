@@ -32,7 +32,11 @@ def error_handler(error: Exception):
 
 @app.route("/", methods=["GET"])
 def index():
-    return {"Hello": "World"}
+    return flask.render_template(
+        "home.html",
+        swagger=config.getboolean("web", "swagger", fallback=False),
+        redoc=config.getboolean("web", "redoc", fallback=False),
+    )
 
 
 ROUTES = []
@@ -52,6 +56,8 @@ for root, dirnames, files in os.walk("routes", topdown=True):
             module = importlib.import_module(module_name)
         except DoNotImportException:
             print(f"{Codes.FG_YELLOW}Disabled: {module_name}{Codes.RESTORE_FG}")
+        # except SyntaxError:
+        #     pass
         else:
             ROUTES.append(module)
 
