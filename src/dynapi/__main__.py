@@ -19,7 +19,6 @@ app = flask.Flask(
     static_folder="web",
     template_folder="web",
 )
-import register_adapter  # noqa
 
 
 # @app.errorhandler(Exception)
@@ -39,6 +38,13 @@ def index():
     )
 
 
+@app.route("/favicon.ico")
+def favicon():
+    return flask.redirect(
+        flask.url_for("static", filename="favicon.ico")
+    )
+
+
 ROUTES = []
 
 
@@ -51,7 +57,7 @@ for root, dirnames, files in os.walk("routes", topdown=True):
         if ext != ".py":
             continue
         module_name = '.'.join([*root.split(os.sep), name])
-        print(f"{Codes.FG_DARK_GREY}Loading: {module_name}{Codes.RESTORE_FG}")
+        # print(f"{Codes.FG_DARK_GREY}Loading: {module_name}{Codes.RESTORE_FG}")
         try:
             module = importlib.import_module(module_name)
         except DoNotImportException:
