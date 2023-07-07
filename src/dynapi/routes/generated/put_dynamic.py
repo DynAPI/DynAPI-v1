@@ -8,6 +8,6 @@ from exceptions import DoNotImportException
 from apiconfig import config
 
 
-if not config.get("methods", "put", fallback=False):
+if not config.getboolean("methods", "put", fallback=False):
     raise DoNotImportException()
 
