@@ -17,6 +17,11 @@ from apiconfig import config
 from util import TCodes
 
 
+#
+# app creation and configuration
+#
+
+
 app = flask.Flask(
     __name__,
     static_folder="web",
@@ -37,20 +42,9 @@ def error_handler(error: Exception):
     return response
 
 
-@app.route("/", methods=["GET"])
-def index():
-    return flask.render_template(
-        "home.html",
-        swagger=config.getboolean("web", "swagger", fallback=False),
-        redoc=config.getboolean("web", "redoc", fallback=False),
-    )
-
-
-@app.route("/favicon.ico")
-def favicon():
-    return flask.redirect(
-        flask.url_for("static", filename="favicon.ico")
-    )
+#
+# authentication system
+#
 
 
 CONFIGURED_USERNAME = config.get("auth", "username")
@@ -60,6 +54,8 @@ if CONFIGURED_USERNAME and CONFIGURED_PASSWORD:
     @app.before_request
     def verify_authorization():
         authorization = flask.request.authorization
+        if not authorization:
+            flask.abort(http.HTTPStatus.UNAUTHORIZED)
         correct_username = hmac.compare_digest(authorization.username, CONFIGURED_USERNAME)
         correct_password = hmac.compare_digest(authorization.password, CONFIGURED_PASSWORD)
         if not correct_username or not correct_password:
@@ -68,6 +64,11 @@ elif CONFIGURED_USERNAME:
     print(f"{TCodes.FG_RED}Provided username without password{TCodes.RESTORE_FG}")
 elif CONFIGURED_PASSWORD:
     print(f"{TCodes.FG_RED}Provided password without username{TCodes.RESTORE_FG}")
+
+
+#
+# dynamic import of everything in ROUTES
+#
 
 
 ROUTES = []
