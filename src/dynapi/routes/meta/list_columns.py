@@ -6,7 +6,8 @@ r"""
 from __main__ import app
 import flask
 from database import DatabaseConnection, dbutil
-from util.makespec import POSTGRES2OPENAPI
+from apiutil.makespec import POSTGRES2OPENAPI
+from apiutil import make_schema, schematypes as s
 
 
 @app.route("/list-columns/<string:schema>/<string:table>")
@@ -22,62 +23,27 @@ def columns(schema: str, table: str):
 def get_openapi_spec(_, __):
     return {
         '/list-columns/{schema}/{table}': {
-            'get': {
-                'tags': ["Meta"],
-                'summary': "Gets all columns of a specific table within a schema",
-                'parameters': [
-                    {
-                        'name': "schema",
-                        'in': "path",
+            'get': make_schema(
+                tags=["Meta"],
+                summary="Gets all columns of a specific table within a schema",
+                path=dict(
+                    schema={
                         'description': "Database Schema",
-                        'schema': dict(
-                            type="string"
-                        )
+                        'schema': s.String(),
                     },
-                    {
-                        'name': "table",
-                        'in': "path",
+                    table={
                         'description': "Database Table Name",
-                        'schema': dict(
-                            type="string",
-                        ),
+                        'schema': s.String(),
                     },
-                ],
-                'responses': {
-                    '200': {
-                        'description': "Successful operation",
-                        'content': {
-                            "application/json": {
-                                'schema': {
-                                    'type': "array",
-                                    'items': {
-                                        'type': "object",
-                                        'properties': {
-                                            'column_name': dict(
-                                                type="string"
-                                            ),
-                                            'is_nullable': dict(
-                                                type="string"
-                                            ),
-                                            'data_type': dict(
-                                                type="string"
-                                            ),
-                                            'is_identity': dict(
-                                                type="string"
-                                            ),
-                                            'is_generated': dict(
-                                                type="string"
-                                            ),
-                                            'is_updatable': dict(
-                                                type="string"
-                                            ),
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                ),
+                responses={
+                    200: s.Array(
+                        s.Object(
+                            column_name=s.String(),
+                            data_type=s.String(),
+                        )
+                    )
                 }
-            }
+            )
         }
     }
