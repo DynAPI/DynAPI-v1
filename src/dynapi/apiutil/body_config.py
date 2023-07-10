@@ -15,7 +15,8 @@ class BodyConfig:
     resolve_depth: int = dataclasses.Field(default=0, ge=0, le=10)
     columns: t.List[str] = dataclasses.Field(default_factory=lambda: ["*"])
     filters: t.List[t.List[t.Tuple[str, str, t.Union[bool, int, float, str]]]] = dataclasses.Field(default_factory=list)
-    obj: dict = dataclasses.Field(default_factory=dict)
+    obj: dict = dataclasses.Field(None)
+    objects: t.List[dict] = dataclasses.Field(None)
 
 
 def get_body_config(request: flask.Request) -> BodyConfig:
