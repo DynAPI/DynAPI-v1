@@ -31,6 +31,10 @@ body {
     margin: auto;
     width: fit-content;
     height: fit-content;
+    text-decoration: none;
+}
+#links > a:hover {
+    text-decoration: underline;
 }
 #links > a > img {
     height: 40vh;
