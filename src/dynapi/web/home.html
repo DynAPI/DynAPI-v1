@@ -11,49 +11,57 @@
             height: 100vh;
             margin: 0;
             user-select: none;
-
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 3fr;
         }
         #title {
+            height: 20vh;
             font-size: 10vw;
-            grid-column: 1 / 3;
+            margin: 0;
+            text-align: center;
+            vertical-align: middle;
         }
-        #swagger {
-            grid-column: {{ "1" if redoc else "1 / 3" }};
+        #links {
+            height: 80vh;
+            display: flex;
+            gap: 1rem;
+            justify-content: space-evenly;
         }
-        #redoc {
-            grid-column: {{ "2" if swagger else "1 / 3" }};
-        }
-        body > a {
+        #links > a {
             cursor: pointer;
             display: block;
             margin: auto;
             width: fit-content;
             height: fit-content;
         }
-        body > a > img {
+        #links > a > img {
             height: 40vh;
         }
-        body > a > h2 {
-            font-size: 3vw;
+        #links > a > h2 {
+            opacity: 0;
+        }
+        #links > a:hover > h2 {
+            opacity: 100;
         }
     </style>
 </head>
 <body>
     <h1 id="title">DynAPI</h1>
-    {% if swagger %}
-    <a id="swagger" href="/swagger">
-        <img src="{{ url_for("static", filename="assets/swagger-logo.svg") }}" alt="Swagger" />
-{#        <h2>Swagger</h2>#}
-    </a>
-    {% endif %}
-    {% if redoc %}
-    <a id="redoc" href="/redoc">
-        <img src="{{ url_for("static", filename="assets/redoc-logo.png") }}" alt="Redoc" />
-{#        <h2>Redoc</h2>#}
-    </a>
-    {% endif %}
+    <div id="links">
+        {% if swagger %}
+        <a id="swagger" href="/swagger">
+            <h2>Swagger</h2>
+            <img src="{{ url_for("static", filename="assets/swagger-logo.svg") }}" alt="Swagger" />
+        </a>
+        {% endif %}
+        <a id="docs" href="/docs/">
+            <h2>DynAPI-Docs</h2>
+            <img src="{{ url_for("favicon") }}" alt="ReadTheDocs" />
+        </a>
+        {% if redoc %}
+        <a id="redoc" href="/redoc">
+            <h2>Redoc</h2>
+            <img src="{{ url_for("static", filename="assets/redoc-logo.png") }}" alt="Redoc" />
+        </a>
+        {% endif %}
+    </div>
 </body>
 </html>

@@ -45,7 +45,7 @@ def openapi():
             # summary=summary,
             description=textwrap.dedent(fr"""
             Last-Update: {datetime.datetime.now():%Y-%m-%d %H:%M}.
-            See the [documentation](/docs)
+            See the [documentation](/docs) or [go Home](/)
             """.strip()),
         ),
         paths=paths,
