@@ -42,7 +42,7 @@ def msgpack_jsonify(*args, **kwargs):
             data = args or kwargs
 
         return flask.current_app.response_class(
-            f"{msgpack.dumps(data, default=msgpack_default)}\n",
+            msgpack.dumps(data, default=msgpack_default),
             mimetype="application/msgpack",
         )
     return flask_jsonify(*args, **kwargs)
