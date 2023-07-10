@@ -58,26 +58,32 @@ patch=False
 
 
 [database]
-# db_host:
+# host:
 # Host or IPv4 address of the database to connect to.
 # Optional parameter.
 # Default: localhost
-;db_host=
+;host=
 
-# db_port:
+# port:
 # Port of the database to connect to.
 # Optional parameter.
 # Default: 5432
-;db_port=
+;port=
 
-# db_user:
+# user:
 # User of the database to connect to.
-db_user=
+user=
 
-# db_password:
-# Password of db_user with the database to connect to.
-db_password=
+# password:
+# Password of user with the database to connect to.
+password=
 
-# db_database:
+# database:
 # Database/Schema of the database to connect to.
-db_database=
+database=
+
+# connect_timeout:
+# Connect Timeout (in seconds)
+# Optional Parameter
+# Default: 5
+;connect_timeout=

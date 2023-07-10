@@ -19,16 +19,17 @@ class DatabaseConnection:
         if self.conn:
             raise RuntimeError("don't use this a second time")
         self.conn = psql.connect(
-            database=config.get("database", "db_database"),
-            user=config.get("database", "db_user"),
-            password=config.get("database", "db_password"),
-            host=config.get("database", "db_host", fallback="localhost"),
-            port=config.getint("database", "db_port", fallback=5432),
+            database=config.get("database", "database"),
+            user=config.get("database", "user"),
+            password=config.get("database", "password"),
+            host=config.get("database", "host", fallback="localhost"),
+            port=config.getint("database", "port", fallback=5432),
+            connect_timeout=config.getint("database", "connect_timeout", fallback=5),
         )
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.conn.close()
 
-    def cursor(self, cursor_factory: t.Type[CursorType] = psql.extras.NamedTupleCursor) -> CursorType:
+    def cursor(self, cursor_factory: t.Type[CursorType] = psql.extras.NamedTupleCursor) -> t.Union[psql.extras.NamedTupleCursor, CursorType]:
         return self.conn.cursor(cursor_factory=cursor_factory)
