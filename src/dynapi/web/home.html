@@ -3,57 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>DynAPI</title>
-    <style>
-        html {
-            font-family: "DejaVu Serif", serif;
-        }
-        body {
-            background-color: #22272e;
-            color: white;
-            text-align: center;
-            height: 100vh;
-            margin: 0;
-            user-select: none;
-        }
-        #title {
-            height: 20vh;
-            font-size: 10vw;
-            margin: 0;
-            text-align: center;
-            vertical-align: middle;
-        }
-        #title > span {
-            color: #3B82F6;
-        }
-        #links {
-            height: 80vh;
-            display: flex;
-            gap: 1rem;
-            justify-content: space-evenly;
-        }
-        #links > a {
-            cursor: pointer;
-            display: block;
-            margin: auto;
-            width: fit-content;
-            height: fit-content;
-        }
-        #links > a > img {
-            height: 40vh;
-            transition: filter 0.25s;
-            filter: grayscale(0.75);
-        }
-        #links > a:hover > img {
-            filter: grayscale(0);
-        }
-        #links > a > h2 {
-            opacity: 0.25;
-            transition: opacity 0.25s;
-        }
-        #links > a:hover > h2 {
-            opacity: 100;
-        }
-    </style>
+{#    <link href="https://fonts.cdnfonts.com/css/dejavu-serif" rel="stylesheet">#}
+    <link rel="stylesheet" type="text/css" href="{{ url_for("static", filename="style.css") }}" />
 </head>
 <body>
     <h1 id="title">
@@ -72,8 +23,8 @@
         </a>
         {% if redoc %}
         <a id="redoc" href="/redoc">
-            <h2>Redoc</h2>
-            <img src="{{ url_for("static", filename="assets/redoc-logo.png") }}" alt="Redoc" />
+            <h2>ReDoc</h2>
+            <img src="{{ url_for("static", filename="assets/redoc-logo.png") }}" alt="ReDoc" />
         </a>
         {% endif %}
     </div>

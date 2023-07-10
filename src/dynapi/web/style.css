@@ -1,0 +1,49 @@
+html {
+    font-family: "DejaVu Serif", sans-serif;
+}
+body {
+    background-color: #22272e;
+    color: white;
+    text-align: center;
+    height: 100vh;
+    margin: 0;
+    user-select: none;
+}
+#title {
+    height: 20vh;
+    font-size: 10vw;
+    margin: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+#title > span {
+    color: #3B82F6;
+}
+#links {
+    height: 80vh;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-evenly;
+}
+#links > a {
+    cursor: pointer;
+    display: block;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+}
+#links > a > img {
+    height: 40vh;
+    transition: filter 0.25s;
+    filter: grayscale(0.75);
+}
+#links > a:hover > img {
+    filter: grayscale(0);
+}
+#links > a > h2 {
+    opacity: 0.25;
+    transition: opacity 0.25s;
+}
+#links > a:hover > h2 {
+    opacity: 100;
+}
