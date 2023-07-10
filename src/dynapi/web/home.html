@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>DynAPI</title>
     <style>
+        html {
+            font-family: "DejaVu Serif", serif;
+        }
         body {
             background-color: #22272e;
             color: white;
@@ -18,6 +21,9 @@
             margin: 0;
             text-align: center;
             vertical-align: middle;
+        }
+        #title > span {
+            color: #3B82F6;
         }
         #links {
             height: 80vh;
@@ -34,9 +40,15 @@
         }
         #links > a > img {
             height: 40vh;
+            transition: filter 0.25s;
+            filter: grayscale(0.75);
+        }
+        #links > a:hover > img {
+            filter: grayscale(0);
         }
         #links > a > h2 {
-            opacity: 0;
+            opacity: 0.25;
+            transition: opacity 0.25s;
         }
         #links > a:hover > h2 {
             opacity: 100;
@@ -44,7 +56,9 @@
     </style>
 </head>
 <body>
-    <h1 id="title">DynAPI</h1>
+    <h1 id="title">
+        Dyn<span>API</span>
+    </h1>
     <div id="links">
         {% if swagger %}
         <a id="swagger" href="/swagger">
