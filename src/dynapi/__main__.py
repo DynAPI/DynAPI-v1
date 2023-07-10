@@ -7,11 +7,13 @@ __version_info__ = (0, 0, 0)
 __version__ = '.'.join(str(_) for _ in __version_info__)
 
 import os
+import http
 import importlib
-import flask.json.tag
+import traceback
+import flask
 from exceptions import DoNotImportException
 from apiconfig import config
-from util import Codes
+from util import TCodes
 
 
 app = flask.Flask(
@@ -21,12 +23,17 @@ app = flask.Flask(
 )
 
 
-# @app.errorhandler(Exception)
+@app.errorhandler(Exception)
 def error_handler(error: Exception):
-    return dict(
+    response = dict(
         type=type(error).__name__,
         detail=str(error),
     )
+    if config.getboolean("api", "debug", fallback=False):
+        response["traceback"] = traceback.format_tb(error.__traceback__)
+    response = flask.jsonify(response)
+    response.status = http.HTTPStatus.INTERNAL_SERVER_ERROR
+    return response
 
 
 @app.route("/", methods=["GET"])
@@ -61,7 +68,7 @@ for root, dirnames, files in os.walk("routes", topdown=True):
         try:
             module = importlib.import_module(module_name)
         except DoNotImportException:
-            print(f"{Codes.FG_YELLOW}Disabled: {module_name}{Codes.RESTORE_FG}")
+            print(f"{TCodes.FG_YELLOW}Disabled: {module_name}{TCodes.RESTORE_FG}")
         # except SyntaxError:
         #     pass
         else:
