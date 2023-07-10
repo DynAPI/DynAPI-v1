@@ -5,7 +5,7 @@ r"""
 """
 from __main__ import app
 from database import DatabaseConnection, dbutil
-from util import makespec
+from apiutil import makespec
 from exceptions import DoNotImportException
 from apiconfig import config
 
