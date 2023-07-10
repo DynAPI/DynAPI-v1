@@ -14,7 +14,8 @@ class BodyConfig:
     offset: int = dataclasses.Field(default=0, ge=0)
     resolve_depth: int = dataclasses.Field(default=0, ge=0, le=10)
     columns: t.List[str] = dataclasses.Field(default_factory=lambda: ["*"])
-    filters: t.List[t.List[t.Tuple[str, str, t.Union[bool, int, float, str]]]] = dataclasses.Field(default_factory=list)
+    filters: t.List[t.List[t.Tuple[str, str, t.Union[bool, int, float, str]]]] = dataclasses.Field(default_factory=list,
+                                                                                                   alias="filter")
     obj: dict = dataclasses.Field(None)
     objects: t.List[dict] = dataclasses.Field(None)
 
