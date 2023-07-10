@@ -6,6 +6,7 @@ itsdangerous==2.0.1
 Jinja2==3.0.3
 MarkupSafe==2.0.1
 psycopg2-binary==2.9.5
+pydantic==1.9.2
 PyPika==0.48.9
 typing_extensions==4.1.1
 Werkzeug==2.0.3

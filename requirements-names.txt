@@ -1,0 +1,4 @@
+flask
+pypika
+pydantic
+psycopg2-binary
