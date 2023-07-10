@@ -5,7 +5,7 @@ r"""
 """
 
 
-class Codes:
+class TCodes:
     RESET = "\033[0m"
 
     ATTR_BOLD = "\033[1m"
