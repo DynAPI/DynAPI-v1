@@ -7,32 +7,55 @@ import flask
 from flask import request
 from database import DatabaseConnection
 from database import dbutil
-from pypika import PostgreSQLQuery as Query, Schema, Table
+from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from __main__ import app
 from apiconfig import config
 from exceptions import DoNotImportException
-from util import makespec, makespec_extra
+from apiutil import makespec, makespec_extra
+from apiutil import get_body_config
 
 
 if not config.getboolean("methods", "get", fallback=False):
     raise DoNotImportException()
 
 
+OPMAP = {
+    "==": Criterion.eq,
+    "eq": Criterion.eq,
+    "!=": Criterion.ne,
+    "not": Criterion.ne,
+    ">": Criterion.gt,
+    ">=": Criterion.gte,
+    "<": Criterion.lt,
+    "<=": Criterion.lte,
+    "glob": Criterion.glob,
+    "like": Criterion.like,
+}
+
+
 @app.route("/get/<string:schema>/<string:table>")
 def select(schema: str, table: str):
     with DatabaseConnection() as conn:
-        from psycopg2.extras import NamedTupleCursor
-        cursor = conn.cursor(cursor_factory=NamedTupleCursor)
+        cursor = conn.cursor()
 
         schema = Schema(schemaname)
         table = Table(tablename)
 
         query = Query \
             .from_(schema.__getattr__(tablename)) \
-            .select("*")
+            .select(*body.columns) \
+            .where(
+                Criterion.any(
+                    Criterion.all(
+                        OPMAP[op.lower()](table.__getattr__(attr), value)
+                        for attr, op, value in ands
+                    )
+                    for ands in body.filters
+                )
+            )
 
-        for column, value in request.args.items():
-            query = query.where(table.__getattr__(column) == value)
+        if body.limit:
+            query = query.limit(body.limit).offset(body.offset)
 
         cursor.execute(str(query))
         return flask.jsonify([
