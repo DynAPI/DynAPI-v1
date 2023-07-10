@@ -47,8 +47,8 @@ def error_handler(error: Exception):
 #
 
 
-CONFIGURED_USERNAME = config.get("auth", "username")
-CONFIGURED_PASSWORD = config.get("auth", "password")
+CONFIGURED_USERNAME = config.get("auth", "username", fallback=None)
+CONFIGURED_PASSWORD = config.get("auth", "password", fallback=None)
 
 if CONFIGURED_USERNAME and CONFIGURED_PASSWORD:
     @app.before_request
