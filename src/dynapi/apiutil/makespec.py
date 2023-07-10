@@ -40,6 +40,15 @@ def makespec(method: str, schemaname: str, tablename: str, columns):
                         },
                         'description': "Number of rows to skip",
                     },
+                    {
+                        'in': "query",
+                        'name': "__resolve_depth__",
+                        'schema': {
+                            'type': "number",
+                        },
+                        'description': "How deep to follow foreign keys and display the relation hierarchically",
+                        # 'description': "How deep to follow foreign keys and resolve them to the right entities",
+                    },
                 ],
                 'responses': {
                     '200': {
