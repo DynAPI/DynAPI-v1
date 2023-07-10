@@ -8,6 +8,7 @@ __version__ = '.'.join(str(_) for _ in __version_info__)
 
 import os
 import http
+import hmac
 import importlib
 import traceback
 import flask
@@ -50,6 +51,23 @@ def favicon():
     return flask.redirect(
         flask.url_for("static", filename="favicon.ico")
     )
+
+
+CONFIGURED_USERNAME = config.get("auth", "username")
+CONFIGURED_PASSWORD = config.get("auth", "password")
+
+if CONFIGURED_USERNAME and CONFIGURED_PASSWORD:
+    @app.before_request
+    def verify_authorization():
+        authorization = flask.request.authorization
+        correct_username = hmac.compare_digest(authorization.username, CONFIGURED_USERNAME)
+        correct_password = hmac.compare_digest(authorization.password, CONFIGURED_PASSWORD)
+        if not correct_username or not correct_password:
+            flask.abort(http.HTTPStatus.UNAUTHORIZED)
+elif CONFIGURED_USERNAME:
+    print(f"{TCodes.FG_RED}Provided username without password{TCodes.RESTORE_FG}")
+elif CONFIGURED_PASSWORD:
+    print(f"{TCodes.FG_RED}Provided password without username{TCodes.RESTORE_FG}")
 
 
 ROUTES = []
