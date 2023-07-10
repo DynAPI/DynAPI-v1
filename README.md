@@ -7,6 +7,27 @@ yaml files for routes.meta
 ## Endpoints
 
 ```bash
+/
+/redoc
+/swagger
+/openapi
+/docs/*
+/api/*
+/api/list/columns
+/api/db
+```
+
+```
+/api
+=> schemas []
+/api/{schema}
+=> table []
+/api/{schema}?meta
+/api/{schema}/{table}/
+/api/{schema}/{table}/column
+```
+
+```bash
 /list-tables
 # [customer,setup,system]
 /list-columns/{schema}/{table}
@@ -39,4 +60,27 @@ SELECT *
   FROM information_schema.columns
  WHERE table_schema = 'your_schema'
    AND table_name   = 'your_table'
+```
+
+
+# Body
+
+```json
+{
+  "resolve_depth": 0,
+  "columns": ["string"],
+  "filter": [
+    [
+      ["key", "op", "value"]
+    ]
+  ],
+  "object": {
+    "key": "any"
+  }
+}
+```
+
+
+```json
+filters=[["id", "==", "0"], "or", [[["id", "==", "0"], "and", [["id", "==", "0"]]]]]
 ```
