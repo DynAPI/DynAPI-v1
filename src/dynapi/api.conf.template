@@ -21,6 +21,25 @@ threaded=True
 # changes how many processes run DynAPI (chose between threading or processes, dont activate both)
 processes=1
 
+# msgpack:
+# whether or not to allow msgpack as responses
+# msgpack must be installed (pip3 install msgpack)
+;msgpack=True
+
+[auth]
+# username and password:
+# used to authenticate the requests
+; username=
+; password=
+
+# ratelimit:
+# limit the number of requests
+# format= {count}/{interval} (eg. 5/min, 100/3h)
+# interval units: s(econds), m(inutes), h(ours), d(ays)
+# currently not implemented
+; ratelimit=
+
+
 [web]
 # redoc:
 # whether or not to provide the /redoc for documentation
@@ -33,29 +52,6 @@ swagger=True
 # docs:
 # whether or not to provide the /docs for (read-the-docs) documentation
 docs=True
-
-# bools for allowing / disallowing CRUD methods
-[methods]
-# get:
-# select/query entities
-get=True
-
-# post:
-# create new entities
-post=True
-
-# delete:
-# delete entities
-delete=True
-
-# put:
-# update single entities
-put=True
-
-# patch:
-# update multiple entities
-patch=False
-
 
 [database]
 # host:
@@ -87,3 +83,25 @@ database=
 # Optional Parameter
 # Default: 5
 ;connect_timeout=
+
+# bools for allowing / disallowing CRUD methods
+[methods]
+# get:
+# select/query entities
+get=
+
+# post:
+# create new entities
+post=
+
+# delete:
+# delete entities
+delete=
+
+# put:
+# update single entities
+put=
+
+# patch:
+# update multiple entities
+patch=
