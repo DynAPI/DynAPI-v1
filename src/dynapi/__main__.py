@@ -15,6 +15,7 @@ import flask
 from exceptions import DoNotImportException
 from apiconfig import config
 from util import TCodes
+import msgpack_support
 
 
 #
@@ -27,6 +28,10 @@ app = flask.Flask(
     static_folder="web",
     template_folder="web",
 )
+if config.getboolean("api", "msgpack", fallback=True):
+    if not msgpack_support.install():
+        print(f"{TCodes.FG_RED}msgpack-support is enabled but msgpack is not installed{TCodes.RESTORE_FG} "
+              f"(pip3 install msgpack)")
 
 
 @app.errorhandler(Exception)
