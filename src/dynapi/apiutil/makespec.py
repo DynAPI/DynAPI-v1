@@ -100,45 +100,6 @@ def makespec_extra(schemaname: str, tablename: str):
                 }
             }
         },
-        f'/db/{schemaname}/{tablename}/constraints': {
-            f'get': {
-                'tags': [f"{format_name(schemaname)}/{format_name(tablename)}"],
-                'summary': f"Get constraints for {format_name(tablename)}",
-                # 'description': f"{method} {format_name(tablename)}",
-                'responses': {
-                    '200': {
-                        'description': "Successful operation",
-                        'content': {
-                            "application/json": {
-                                'schema': {
-                                    'type': "object",
-                                    'properties': {
-                                        'constraint_name': {
-                                            'type': "string",
-                                        },
-                                        'constraint_type': {
-                                            'type': "string",
-                                        },
-                                        'referenced_table_name': {
-                                            'type': "string",
-                                        },
-                                        'referenced_column_name': {
-                                            'type': "string",
-                                        },
-                                        'data_type': {
-                                            'type': "string",
-                                        },
-                                        'is_updatable': {
-                                            'type': "string",
-                                        },
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
     }
 
 
