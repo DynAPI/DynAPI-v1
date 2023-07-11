@@ -7,22 +7,20 @@ import re
 
 
 def makespec(method: str, schemaname: str, tablename: str, columns):
-    columns = columns
-
     return {
         f'/db/{schemaname}/{tablename}': {
             f'{method}': {
-                'tags': [f"{format_name(schemaname)}/{format_name(tablename)}"],
+                'tags': [f"{format_name(schemaname)}/{format_name(tablename)}", method.upper()],
                 'summary': format_name(tablename),
                 # 'description': f"{method} {format_name(tablename)}",
                 'parameters': [
                     {
                         'in': "query",
                         'name': col_name,
-                        'schema': POSTGRES2OPENAPI.get(data_type, data_type),
+                        'schema': POSTGRES2OPENAPI.get(column.data_type, {}),
                         'description': format_name(col_name),
                     }
-                    for col_name, data_type in columns.items()
+                    for col_name, column in columns.items()
                 ] + [
                     {
                         'in': "query",
@@ -60,8 +58,8 @@ def makespec(method: str, schemaname: str, tablename: str, columns):
                                     'items': {
                                         'type': "object",
                                         'properties': {
-                                            col_name: POSTGRES2OPENAPI.get(data_type, data_type)
-                                            for col_name, data_type in columns.items()
+                                            col_name: POSTGRES2OPENAPI.get(column.data_type, {})
+                                            for col_name, column in columns.items()
                                         }
                                     }
                                 }
