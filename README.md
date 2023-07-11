@@ -65,7 +65,7 @@ SELECT *
 
 # Body
 
-```json
+```json5
 {
   "resolve_depth": 0,
   "columns": ["string"],
@@ -76,7 +76,8 @@ SELECT *
   ],
   "object": {
     "key": "any"
-  }
+  },
+  "affected": 1,  // 
 }
 ```
 
