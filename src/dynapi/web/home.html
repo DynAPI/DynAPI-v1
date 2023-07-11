@@ -17,10 +17,12 @@
             <img src="{{ url_for("static", filename="assets/swagger-logo.svg") }}" alt="Swagger" />
         </a>
         {% endif %}
+        {% if docs %}
         <a id="docs" href="/docs/">
             <h2>DynAPI-Docs</h2>
             <img src="{{ url_for("static", filename="assets/DynAPI.svg") }}" alt="ReadTheDocs" />
         </a>
+        {% endif %}
         {% if redoc %}
         <a id="redoc" href="/redoc">
             <h2>ReDoc</h2>

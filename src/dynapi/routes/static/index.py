@@ -12,6 +12,7 @@ from apiconfig import config
 def index():
     return flask.render_template(
         "home.html",
+        docs=config.getboolean("web", "docs", fallback=False),
         swagger=config.getboolean("web", "swagger", fallback=False),
         redoc=config.getboolean("web", "redoc", fallback=False),
     )
