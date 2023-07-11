@@ -12,6 +12,7 @@ import hmac
 import importlib
 import traceback
 import flask
+from werkzeug.exceptions import HTTPException
 from exceptions import DoNotImportException
 from apiconfig import config
 from util import TCodes
@@ -28,14 +29,29 @@ app = flask.Flask(
     static_folder="web",
     template_folder="web",
 )
-if config.getboolean("api", "msgpack", fallback=True):
+if config.getboolean("api", "msgpack", fallback=False):
     if not msgpack_support.install():
         print(f"{TCodes.FG_RED}msgpack-support is enabled but msgpack is not installed{TCodes.RESTORE_FG} "
               f"(pip3 install msgpack)")
 
 
+# maybe better override flask.Flask.handle_http_exception
+@app.errorhandler(HTTPException)
+def http_error_handler(error: HTTPException):
+    response = flask.jsonify(
+        code=error.code,
+        name=error.name,
+        description=error.description,
+    )
+    response.status = error.code
+    return response
+
+
+# maybe better override flask.Flask.handle_exception
 @app.errorhandler(Exception)
-def error_handler(error: Exception):
+def server_error_handler(error: Exception):
+    if isinstance(error, HTTPException):
+        return error  # dunno. this part was in flask (https://flask.palletsprojects.com/en/2.3.x/errorhandling/)
     response = dict(
         type=type(error).__name__,
         detail=str(error),
