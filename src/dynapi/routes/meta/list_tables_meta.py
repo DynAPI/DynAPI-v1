@@ -98,21 +98,12 @@ def get_openapi_spec(_, __):
                                 'column': {
                                     'type': "object",
                                     'properties': {
-                                        'is_nullable': {
+                                        'column_name': {
                                             'type': "string"
                                         },
                                         'data_type': {
                                             'type': "string"
-                                        },
-                                        'is_identity': {
-                                            'type': "string"
-                                        },
-                                        'is_generated': {
-                                            'type': "string"
-                                        },
-                                        'is_updatable': {
-                                            'type': "string"
-                                        },
+                                        }
                                     }
                                 }
                             }
@@ -158,21 +149,12 @@ def get_openapi_spec(_, __):
                                     'items': {
                                         'type': "object",
                                         'properties': {
-                                            'is_nullable': {
+                                            'column_name': {
                                                 'type': "string"
                                             },
                                             'data_type': {
                                                 'type': "string"
-                                            },
-                                            'is_identity': {
-                                                'type': "string"
-                                            },
-                                            'is_generated': {
-                                                'type': "string"
-                                            },
-                                            'is_updatable': {
-                                                'type': "string"
-                                            },
+                                            }
                                         }
                                     }
                                 }

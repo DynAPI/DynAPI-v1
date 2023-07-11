@@ -33,8 +33,9 @@ OPMAP = {
 }
 
 
-@app.route("/get/<string:schema>/<string:table>")
-def select(schema: str, table: str):
+@app.route("/db/<string:schemaname>/<string:tablename>", methods=["GET"])
+def select(schemaname: str, tablename: str):
+    body = get_body_config(request)
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
 
@@ -62,6 +63,12 @@ def select(schema: str, table: str):
             {col.name: row[index] for index, col in enumerate(cursor.description)}
             for row in cursor.fetchall()
         ])
+
+
+@app.route("/db/<string:schema>/<string:table>/count", methods=["GET"])
+def countItems(schema: str, table: str):
+    with DatabaseConnection() as conn:
+        return flask.jsonify(dbutil.get_count(connection=conn, schema=schema, table=table))
 
 
 def get_openapi_spec(connection: DatabaseConnection, tables_meta):

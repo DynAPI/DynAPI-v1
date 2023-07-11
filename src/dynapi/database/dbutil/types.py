@@ -21,3 +21,19 @@ class TableColumn:
     # is_identity: str
     # is_generated: str
     # is_updatable: str
+
+
+@dataclass(frozen=True)
+class Count:
+    count: int
+
+
+@dataclass(frozen=True)
+class Constraints:
+    constraint_name: str
+    constraint_type: str
+    referenced_table_name: str
+    referenced_column_name: str
+    data_type: str
+    is_updatable: str
+

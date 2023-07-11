@@ -11,7 +11,7 @@ from .types import TableColumn
 def list_columns(connection: DatabaseConnection, schema: str, table: str) -> t.List[TableColumn]:
     cursor = connection.cursor()
     cursor.execute(r"""
-    SELECT *
+    SELECT column_name, data_type
     FROM information_schema.columns
     WHERE table_schema = %s
     AND table_name = %s;
