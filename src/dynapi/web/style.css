@@ -14,10 +14,12 @@ body {
     font-size: 10vw;
     margin: 0;
     text-align: center;
-    vertical-align: middle;
 }
-#title > span {
+#title > .api {
     color: #3B82F6;
+}
+#title > .version {
+    font-size: 3vh;
 }
 #links {
     height: 80vh;

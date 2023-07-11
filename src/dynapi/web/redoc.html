@@ -29,8 +29,16 @@
     <script>
         {# https://redocly.com/docs/api-reference-docs/configuration/functionality/ #}
         Redoc.init("openapi", {
-            hideDownloadButton: false,
-            hideLoading: false,
+            ctrlFHijack: true,
+            defaultSampleLanguage: true,
+            {#expandResponses: 'all',#}
+            generateCodeSamples: {
+                languages: [
+                    {'lang': "curl"},
+                    {'lang': "JavaScript"},
+                    {'lang': "Python"},
+                ]
+            }
         }, document.getElementById('redoc'))
      </script>
   </body>
