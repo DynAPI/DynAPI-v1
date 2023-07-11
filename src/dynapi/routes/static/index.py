@@ -3,7 +3,7 @@
 r"""
 
 """
-from __main__ import app
+from __main__ import app, __version__
 import flask
 from apiconfig import config
 
@@ -15,6 +15,7 @@ def index():
         docs=config.getboolean("web", "docs", fallback=False),
         swagger=config.getboolean("web", "swagger", fallback=False),
         redoc=config.getboolean("web", "redoc", fallback=False),
+        version=__version__,
     )
 
 
