@@ -24,13 +24,15 @@ def get_openapi_spec(_, __):
                 tags=["Meta"],
                 summary="Get the constrains of a table",
                 responses={
-                    200: s.Object(
-                        constraint_name=s.String(),
-                        constraint_type=s.String(),
-                        referenced_table_name=s.String(),
-                        referenced_column_name=s.String(),
-                        data_type=s.String(),
-                        is_updatable=s.String(),
+                    200: s.Array(
+                        s.Object(
+                            constraint_name=s.String(),
+                            constraint_type=s.String(),
+                            referenced_table_name=s.String(),
+                            referenced_column_name=s.String(),
+                            data_type=s.String(),
+                            is_updatable=s.String(),
+                        )
                     )
                 }
             )
