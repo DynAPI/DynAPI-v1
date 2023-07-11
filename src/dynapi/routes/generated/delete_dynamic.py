@@ -40,12 +40,8 @@ def delete(schemaname: str, tablename: str):
                 )
             ) \
             .returning("*")
-
-        # if body.limit:
-        #     query = query.limit(body.limit).offset(body.offset)
-
         cursor.execute(str(query))
-        # print(f"{cursor.rowcount} rows affected")
+
         conn.commit()
         return flask.jsonify([
             {col.name: row[index] for index, col in enumerate(cursor.description)}

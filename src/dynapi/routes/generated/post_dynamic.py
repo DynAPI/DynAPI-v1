@@ -4,14 +4,39 @@ r"""
 
 """
 from __main__ import app
+import flask
+from flask import request
 from database import DatabaseConnection, dbutil
 from apiutil import makespec
 from exceptions import DoNotImportException
+from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from apiconfig import config
+from apiutil import get_body_config
 
 
 if not config.getboolean("methods", "post", fallback=False):
     raise DoNotImportException()
+
+
+@app.route("/db/<string:schemaname>/<string:tablename>", methods=["POST"])
+def post(schemaname: str, tablename: str):
+    body = get_body_config(request)
+    with DatabaseConnection() as conn:
+        from psycopg2.extras import NamedTupleCursor
+        cursor = conn.cursor(cursor_factory=NamedTupleCursor)
+        schema = Schema(schemaname)
+        table = Table(tablename)
+        query = Query.into(schema.__getattr__(tablename)) \
+                .columns(*body.obj.keys()) \
+                .insert(*body.obj.values()) \
+                .returning("*")
+
+        cursor.execute(str(query))
+        conn.commit()
+        return flask.jsonify([
+            {col.name: row[index] for index, col in enumerate(cursor.description)}
+            for row in cursor.fetchall()
+        ])
 
 
 def get_openapi_spec(connection: DatabaseConnection, tables_meta):
@@ -23,4 +48,3 @@ def get_openapi_spec(connection: DatabaseConnection, tables_meta):
         )
     return spec
 
-# BEEP
