@@ -33,3 +33,6 @@ class DatabaseConnection:
 
     def cursor(self, cursor_factory: t.Type[CursorType] = psql.extras.NamedTupleCursor) -> t.Union[psql.extras.NamedTupleCursor, CursorType]:
         return self.conn.cursor(cursor_factory=cursor_factory)
+
+    def commit(self):
+        self.conn.commit()
