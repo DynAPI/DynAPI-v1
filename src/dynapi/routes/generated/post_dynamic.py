@@ -22,3 +22,5 @@ def get_openapi_spec(connection: DatabaseConnection, tables_meta):
                      columns=tables_meta[table.schema][table.table])
         )
     return spec
+
+# BEEP
