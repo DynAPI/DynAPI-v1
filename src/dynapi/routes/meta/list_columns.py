@@ -10,10 +10,10 @@ from apiutil.makespec import POSTGRES2OPENAPI
 from apiutil import make_schema, schematypes as s
 
 
-@app.route("/list-columns/<string:schema>/<string:table>")
-def columns(schema: str, table: str):
+@app.route("/list-columns/<string:schemaname>/<string:tablename>")
+def columns(schemaname: str, tablename: str):
     with DatabaseConnection() as connection:
-        cols = dbutil.list_columns(connection=connection, schema=schema, table=table)
+        cols = dbutil.list_columns(connection=connection, schema=schemaname, table=tablename)
         return flask.jsonify({
             col.name: POSTGRES2OPENAPI.get(col.data_type)['type']
             for col in cols
@@ -22,7 +22,7 @@ def columns(schema: str, table: str):
 
 def get_openapi_spec(_, __):
     return {
-        '/list-columns/{schema}/{table}': {
+        '/list-columns/{schemaname}/{tablename}': {
             'get': make_schema(
                 tags=["Meta"],
                 summary="Gets all columns of a specific table within a schema",
