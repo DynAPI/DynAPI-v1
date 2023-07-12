@@ -9,10 +9,7 @@ import dataclasses
 from datetime import date
 import flask
 from werkzeug.http import http_date
-try:
-    import msgpack
-except ModuleNotFoundError:
-    msgpack = None
+import msgpack
 
 
 flask_jsonify = flask.jsonify
@@ -49,6 +46,4 @@ def msgpack_jsonify(*args, **kwargs):
 
 
 def install():
-    if msgpack:
-        flask.jsonify = msgpack_jsonify
-    return msgpack is not None
+    flask.jsonify = msgpack_jsonify

@@ -5,6 +5,7 @@ importlib-metadata==4.8.3
 itsdangerous==2.0.1
 Jinja2==3.0.3
 MarkupSafe==2.0.1
+msgpack==1.0.5
 psycopg2-binary==2.9.5
 pydantic==1.9.2
 PyPika==0.48.9

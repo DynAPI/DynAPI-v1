@@ -30,9 +30,7 @@ app = flask.Flask(
     template_folder="web",
 )
 if config.getboolean("api", "msgpack", fallback=False):
-    if not msgpack_support.install():
-        print(f"{TCodes.FG_RED}msgpack-support is enabled but msgpack is not installed{TCodes.RESTORE_FG} "
-              f"(pip3 install msgpack)")
+    msgpack_support.install()
 
 
 # maybe better override flask.Flask.handle_http_exception
