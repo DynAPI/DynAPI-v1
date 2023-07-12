@@ -4,4 +4,4 @@ r"""
 
 """
 from .fileconfig import config
-from .method_check import method_check
+from .method_check import method_check, flask_method_check
