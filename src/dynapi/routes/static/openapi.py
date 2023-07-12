@@ -19,7 +19,7 @@ if not config.getboolean("web", "redoc", fallback=False) and not config.getboole
 
 
 @app.route("/openapi")
-@minicache(max_age=30)
+# @minicache(max_age=30)
 def openapi():
     try:
         paths = defaultdict(dict)
