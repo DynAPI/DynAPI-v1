@@ -8,13 +8,8 @@ import flask
 from flask import request
 from pypika import PostgreSQLQuery as Query, Schema, Table
 from database import DatabaseConnection, dbutil
-from exceptions import DoNotImportException
-from apiconfig import config, flask_method_check, method_check
+from apiconfig import flask_method_check, method_check
 from apiutil import makespec, get_body_config
-
-
-if not config.getboolean("methods", "post", fallback=False):
-    raise DoNotImportException()
 
 
 @app.route("/db/<string:schemaname>/<string:tablename>", methods=["POST"])
