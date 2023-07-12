@@ -4,13 +4,13 @@ r"""
 
 """
 from __main__ import app
+import http
 import flask
 from flask import request
-from database import DatabaseConnection
-from database import dbutil
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
-from apiutil import makespec
-from apiconfig import config
+from pypika.functions import Count
+from database import DatabaseConnection, dbutil
+from apiconfig import config, flask_method_check, method_check
 from exceptions import DoNotImportException
 from apiutil import get_body_config
 
@@ -21,6 +21,7 @@ if not config.getboolean("methods", "delete", fallback=False):
 
 @app.route("/db/<string:schemaname>/<string:tablename>", methods=["DELETE"])
 def delete(schemaname: str, tablename: str):
+    flask_method_check()
     body = get_body_config(request)
     with DatabaseConnection() as conn:
         from psycopg2.extras import NamedTupleCursor
@@ -52,8 +53,9 @@ def delete(schemaname: str, tablename: str):
 def get_openapi_spec(connection: DatabaseConnection, tables_meta):
     spec = {}
     for table in dbutil.list_tables(connection=connection):
-        spec.update(
-            makespec(method="delete", schemaname=table.schema, tablename=table.table,
-                     columns=tables_meta[table.schema][table.table])
-        )
+        if method_check(method="delete", schema=table.schema, table=table.table):
+            spec.update(
+                makespec(method="delete", schemaname=table.schema, tablename=table.table,
+                         columns=tables_meta[table.schema][table.table])
+            )
     return spec

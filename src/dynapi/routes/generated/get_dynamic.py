@@ -3,38 +3,23 @@
 r"""
 
 """
+from __main__ import app
 import flask
 from flask import request
-from database import DatabaseConnection
-from database import dbutil
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
-from __main__ import app
-from apiconfig import config
+from database import DatabaseConnection, dbutil
+from apiconfig import config, flask_method_check, method_check
 from exceptions import DoNotImportException
-from apiutil import makespec, makespec_extra
-from apiutil import get_body_config
+from apiutil import makespec, format_name, get_body_config, make_schema, schematypes as s
 
 
 if not config.getboolean("methods", "get", fallback=False):
     raise DoNotImportException()
 
 
-OPMAP = {
-    "==": Criterion.eq,
-    "eq": Criterion.eq,
-    "!=": Criterion.ne,
-    "not": Criterion.ne,
-    ">": Criterion.gt,
-    ">=": Criterion.gte,
-    "<": Criterion.lt,
-    "<=": Criterion.lte,
-    "glob": Criterion.glob,
-    "like": Criterion.like,
-}
-
-
 @app.route("/db/<string:schemaname>/<string:tablename>", methods=["GET"])
-def select(schemaname: str, tablename: str):
+def get(schemaname: str, tablename: str):
+    flask_method_check()
     body = get_body_config(request)
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
@@ -48,7 +33,7 @@ def select(schemaname: str, tablename: str):
             .where(
                 Criterion.any(
                     Criterion.all(
-                        OPMAP[op.lower()](table.__getattr__(attr), value)
+                        dbutil.OPMAP[op.lower()](table.__getattr__(attr), value)
                         for attr, op, value in ands
                     )
                     for ands in body.filters
@@ -74,9 +59,23 @@ def countItems(schema: str, table: str):
 def get_openapi_spec(connection: DatabaseConnection, tables_meta):
     spec = {}
     for table in dbutil.list_tables(connection=connection):
-        spec.update(
-            makespec(method="get", schemaname=table.schema, tablename=table.table,
-                     columns=tables_meta[table.schema][table.table])
-        )
-        spec.update(makespec_extra(schemaname=table.schema, tablename=table.table))
+        if method_check(method="get", schema=table.schema, table=table.table):
+            spec.update(
+                makespec(method="get", schemaname=table.schema, tablename=table.table,
+                         columns=tables_meta[table.schema][table.table])
+            )
+            spec.update({
+                f'/db/{table.schema}/{table.table}/count': {
+                    f'get': make_schema(
+                        tags=[f"{format_name(table.schema)}/{format_name(table.table)}"],
+                        summary=f"Get count for {format_name(table.table)}",
+                        # 'description': f"{method} {format_name(tablename)}",
+                        responses={
+                            200: s.Object(
+                                count=s.Integer(),
+                            )
+                        }
+                    )
+                }
+            })
     return spec
