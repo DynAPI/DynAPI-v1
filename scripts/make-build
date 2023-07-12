@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -e
+
+cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
+
+# create build directory
+mkdir -p "build/"
+
+# remove old source-code
+[[ -d "build/dynapi/" ]] && rm -rf "build/dynapi/"
+
+# copy source code
+cp -r "src/dynapi/" "build/dynapi"
+
+# cleanup of copied
+find build/dynapi -type d -name __pycache__ -prune -exec rm -rf "{}" \;
+rm "build/dynapi/api.conf"
+
+# install dependencies into (new) copied source-code directory
+python3 -m pip install -q -r "requirements.txt" -t "build/dynapi/" --compile --disable-pip-version-check
+rm -rf build/dynapi/*.dist-info
+
+cp "scripts/dynapi.run.sh" "build/dynapi/dynapi.run"
+chmod +x "build/dynapi/dynapi.run"
