@@ -13,7 +13,13 @@ yaml files for routes.meta
 /openapi
 /docs/*
 /api/*
-/api/list/columns
+/api/db/{schema}/{table}
+
+/api/meta/{schema}/{table}/columns
+/api/meta/
+=> schemas
+/api/meta/{schama}/
+=> tables
 /api/db
 ```
 
