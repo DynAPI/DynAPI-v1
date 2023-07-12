@@ -26,6 +26,8 @@ class __Schema:
 
     @staticmethod
     def _resolve_type(_type):
+        if isinstance(_type, dict):
+            return _type
         if _type in _builtin_types_map:
             _type = _builtin_types_map[_type]
         if callable(_type):

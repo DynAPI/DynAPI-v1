@@ -4,101 +4,52 @@ r"""
 
 """
 import re
+from .schema import make_schema
+from . import schematypes as s
 
 
 def makespec(method: str, schemaname: str, tablename: str, columns):
     return {
         f'/db/{schemaname}/{tablename}': {
-            f'{method}': {
-                'tags': [f"{format_name(schemaname)}/{format_name(tablename)}", method.upper()],
-                'summary': format_name(tablename),
-                # 'description': f"{method} {format_name(tablename)}",
-                'parameters': [
-                    {
-                        'in': "query",
-                        'name': col_name,
-                        'schema': POSTGRES2OPENAPI.get(column.data_type, {}),
-                        'description': format_name(col_name),
-                    }
-                    for col_name, column in columns.items()
-                ] + [
-                    {
-                        'in': "query",
-                        'name': "__limit__",
-                        'schema': {
-                            'type': "number",
-                        },
-                        'description': "Maximum number of rows returned",
+            f'{method}': make_schema(
+                tags=[f"{format_name(schemaname)}/{format_name(tablename)}", method.upper()],
+                summary=format_name(tablename),
+                query={
+                    **{
+                        col_name: dict(
+                            description=format_name(col_name),
+                            schema=POSTGRES2OPENAPI.get(column.data_type, {})
+                        )
+                        for col_name, column in columns.items()
                     },
-                    {
-                        'in': "query",
-                        'name': "__offset__",
-                        'schema': {
-                            'type': "number",
-                        },
-                        'description': "Number of rows to skip",
-                    },
-                    {
-                        'in': "query",
-                        'name': "__resolve_depth__",
-                        'schema': {
-                            'type': "number",
-                        },
-                        'description': "How deep to follow foreign keys and display the relation hierarchically",
-                        # 'description': "How deep to follow foreign keys and resolve them to the right entities",
-                    },
-                ],
-                'responses': {
-                    '200': {
-                        'description': "Successful operation",
-                        'content': {
-                            "application/json": {
-                                'schema': {
-                                    'type': "array",
-                                    'items': {
-                                        'type': "object",
-                                        'properties': {
-                                            col_name: POSTGRES2OPENAPI.get(column.data_type, {})
-                                            for col_name, column in columns.items()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    **dict(
+                        __limit__=dict(
+                            description="Maximum number of rows returned",
+                            schema=s.Integer(),
+                        ),
+                        __offset__=dict(
+                            description="Number of rows to skip",
+                            schema=s.Integer()
+                        ),
+                        __resolve_depth__=dict(
+                            description="How deep to follow foreign keys and display the relation hierarchically",
+                            schema=s.Integer(),
+                        )
+                    )
+                },
+                responses={
+                    200: s.Object({
+                        col_name: POSTGRES2OPENAPI.get(column.data_type, {})
+                        for col_name, column in columns.items()
+                    })
                 }
-            }
+            )
         }
     }
 
 
-def makespec_extra(schemaname: str, tablename: str):
-    return {
-        f'/db/{schemaname}/{tablename}/count': {
-            f'get': {
-                'tags': [f"{format_name(schemaname)}/{format_name(tablename)}"],
-                'summary': f"Get count for {format_name(tablename)}",
-                # 'description': f"{method} {format_name(tablename)}",
-                'responses': {
-                    '200': {
-                        'description': "Successful operation",
-                        'content': {
-                            "application/json": {
-                                'schema': {
-                                    'type': "object",
-                                    'properties': {
-                                        'count': {
-                                            'type': "integer"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-    }
+def format_name(name: str):
+    return re.sub(r"[-_]", ' ', name).title()
 
 
 POSTGRES2OPENAPI = {
@@ -132,7 +83,3 @@ POSTGRES2OPENAPI = {
     'uuid': dict(type='integer'),
     'xml': dict(type='string', format='xml')
 }
-
-
-def format_name(name: str):
-    return re.sub(r"[-_]", ' ', name).title()

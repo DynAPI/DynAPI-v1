@@ -4,6 +4,6 @@ r"""
 
 """
 from .body_config import BodyConfig, get_body_config
-from .makespec import makespec, makespec_extra
+from .makespec import makespec, format_name
 from .schema import make_schema, get_model_schema
 from . import schematypes
