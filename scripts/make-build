@@ -8,12 +8,13 @@ mkdir -p "build/"
 
 # remove old source-code
 [[ -d "build/dynapi/" ]] && rm -rf "build/dynapi/"
+[[ -f "build/dynapi.tgz" ]] && rm -rf "build/dynapi.tgz"
 
 # copy source code
 cp -r "src/dynapi/" "build/dynapi"
 
 # cleanup of copied
-find build/dynapi -type d -name __pycache__ -prune -exec rm -rf "{}" \;
+find build/dynapi -type d -iname __pycache__ -prune -exec rm -rf "{}" \;
 rm "build/dynapi/api.conf"
 
 # install dependencies into (new) copied source-code directory
@@ -22,3 +23,11 @@ rm -rf build/dynapi/*.dist-info
 
 cp "scripts/dynapi.run.sh" "build/dynapi/dynapi.run"
 chmod +x "build/dynapi/dynapi.run"
+
+#python3 -m compileall "build/dynapi/" -b -q
+#find build/dynapi -name "*.py" -type f -delete
+pyminify build/dynapi --in-place
+
+tar -czf build/dynapi.tgz build/dynapi
+
+echo "Build successful"
