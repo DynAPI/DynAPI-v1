@@ -12,16 +12,35 @@ class __Schema:
     def __init__(self):
         self._options = {}
 
+    def default(self, default) -> '__Schema':
+        self._options["default"] = default
+        return self
+
+    def enum(self, enum: list) -> '__Schema':
+        self._options["enum"] = enum
+        return self
+
     def nullable(self, is_: bool = True) -> '__Schema':
         self._options['nullable'] = is_
         return self
 
-    def example(self, *, example: str) -> '__Schema':
+    def example(self, example: str) -> '__Schema':
         self._options['example'] = example
         return self
 
-    @abc.abstractmethod
+    # @t.final
     def finalize(self) -> dict:
+        return {
+            attr: value
+            for attr, value in {
+                **self._options,
+                **self._finalize(),
+            }.items()
+            if value is not None
+        }
+
+    @abc.abstractmethod
+    def _finalize(self) -> dict:
         pass
 
     @staticmethod
@@ -40,10 +59,9 @@ class Object(__Schema):
         super().__init__()
         self._properties = _props or properties
 
-    def finalize(self) -> dict:
+    def _finalize(self) -> dict:
         return {
             'type': "object",
-            **self._options,
             'properties': {
                 attr: self._resolve_type(typ)
                 for attr, typ in self._properties.items()
@@ -57,27 +75,24 @@ class Array(__Schema):
         super().__init__()
         self._items = items
 
-    def finalize(self) -> dict:
+    def _finalize(self) -> dict:
         return {
             'type': "array",
-            **self._options,
             'items': self._resolve_type(self._items)
         }
 
 
 class Integer(__Schema):
-    def finalize(self) -> dict:
+    def _finalize(self) -> dict:
         return {
             'type': "integer",
-            **self._options,
         }
 
 
 class Number(__Schema):
-    def finalize(self) -> dict:
+    def _finalize(self) -> dict:
         return {
             'type': "number",
-            **self._options,
         }
 
 
@@ -85,15 +100,13 @@ class String(__Schema):
     def finalize(self) -> dict:
         return {
             'type': "string",
-            **self._options,
         }
 
 
 class Boolean(__Schema):
-    def finalize(self) -> dict:
+    def _finalize(self) -> dict:
         return {
             'type': "boolean",
-            **self._options,
         }
 
 
