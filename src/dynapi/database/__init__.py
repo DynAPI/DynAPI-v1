@@ -3,10 +3,12 @@
 r"""
 
 """
+import sys
 import typing as t
 import psycopg2 as psql
 import psycopg2.extras
 from apiconfig import config
+from util import TCodes
 
 
 CursorType = t.TypeVar("CursorType")
@@ -36,3 +38,13 @@ class DatabaseConnection:
 
     def commit(self):
         self.conn.commit()
+
+
+def test_database_connection():
+    try:
+        with DatabaseConnection():
+            pass
+    except Exception as exc:
+        print(f"{TCodes.FG_RED}Failed to connect to Database{TCodes.RESTORE_FG}")
+        print(f"{type(exc).__name__}: {exc}")
+        sys.exit(1)

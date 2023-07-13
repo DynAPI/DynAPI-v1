@@ -15,6 +15,7 @@ import flask
 from werkzeug.exceptions import HTTPException
 from exceptions import DoNotImportException
 from apiconfig import config
+from database import test_database_connection
 from util import TCodes
 import msgpack_support
 
@@ -114,6 +115,7 @@ for root, dirnames, files in os.walk("routes", topdown=True):
 
 
 if __name__ == '__main__':
+    test_database_connection()
     app.run(
         host=config.get("api", "host", fallback="localhost"),
         port=config.getint("api", "port", fallback=8080),
