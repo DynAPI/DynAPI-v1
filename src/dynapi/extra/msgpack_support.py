@@ -8,8 +8,9 @@ import decimal
 import dataclasses
 from datetime import date
 import flask
-from werkzeug.http import http_date
 import msgpack
+from werkzeug.http import http_date
+from apiconfig import config
 
 
 flask_jsonify = flask.jsonify
@@ -45,5 +46,5 @@ def msgpack_jsonify(*args, **kwargs):
     return flask_jsonify(*args, **kwargs)
 
 
-def install():
+if config.getboolean("api", "msgpack", fallback=False):
     flask.jsonify = msgpack_jsonify
