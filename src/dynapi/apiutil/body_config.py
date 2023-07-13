@@ -22,13 +22,21 @@ class BodyConfig:
 
 
 def get_body_config(request: flask.Request) -> BodyConfig:
-    if not request.is_json:
-        flask.abort(http.HTTPStatus.BAD_REQUEST)
-    conf = BodyConfig(**(request.json or {}))
+    conf: t.Dict[str, t.Any] = {}
+    extra_filter = []
     if request.args:
-        conf.filters.append([
-            (col, "==", value)
-            for col, value in request.args.items()
-            if not col.startswith("__") and not col.endswith("__")
-        ])
-    return conf
+        for attr, value in request.args.items():
+            if attr.startswith("__") and attr.endswith("__"):
+                conf[attr] = value
+            else:
+                extra_filter.append((attr, "==", value))
+    if request.is_json:
+        conf.update(request.json)
+    elif request.mimetype:
+        raise flask.abort(
+            status=http.HTTPStatus.BAD_REQUEST,
+            description="Body is not JSON",
+        )
+    conf.setdefault('filters', [])
+    conf['filters'].append(extra_filter)
+    return BodyConfig(**conf)
