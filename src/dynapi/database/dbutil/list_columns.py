@@ -14,7 +14,7 @@ def list_columns(connection: DatabaseConnection, schema: str, table: str) -> t.L
     SELECT column_name, data_type
     FROM information_schema.columns
     WHERE table_schema = %s
-    AND table_name = %s;
+    AND table_name = %s
     """, [schema, table])
     return [
         TableColumn(

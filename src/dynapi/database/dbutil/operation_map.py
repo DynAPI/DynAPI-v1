@@ -5,6 +5,7 @@ r"""
 """
 from pypika import Criterion
 
+
 OPMAP = {
     "==": Criterion.eq,
     "eq": Criterion.eq,

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 class TableMeta:
     schema: str
     table: str
-    owner: str
+    type: str
 
 
 @dataclass(frozen=True)

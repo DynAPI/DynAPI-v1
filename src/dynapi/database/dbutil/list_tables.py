@@ -20,7 +20,7 @@ def list_tables(connection: DatabaseConnection) -> t.List[TableMeta]:
         TableMeta(
             schema=row.schemaname,
             table=row.tablename,
-            owner=row.tableowner,
+            type="table",
         )
         for row in cursor.fetchall()
     ]
