@@ -9,10 +9,10 @@ from flask import request
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from database import DatabaseConnection, dbutil
 from apiconfig import flask_method_check, method_check
-from apiutil import get_body_config
+from apiutil import get_body_config, makespec
 
 
-@app.route("/db/<string:schemaname>/<string:tablename>", methods=["DELETE"])
+@app.route("/api/db/<string:schemaname>/<string:tablename>", methods=["DELETE"])
 def delete(schemaname: str, tablename: str):
     flask_method_check()
     body = get_body_config(request)

@@ -26,6 +26,7 @@ def get_openapi_spec(_, __):
                         s.Object(
                             schema=s.String(),
                             name=s.String(),
+                            type=s.String().enum(["table", "view"])
                         )
                     )
                 }

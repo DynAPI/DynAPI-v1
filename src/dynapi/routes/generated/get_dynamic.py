@@ -12,7 +12,7 @@ from apiconfig import flask_method_check, method_check
 from apiutil import makespec, format_name, get_body_config, make_schema, schematypes as s
 
 
-@app.route("/db/<string:schemaname>/<string:tablename>", methods=["GET"])
+@app.route("/api/db/<string:schemaname>/<string:tablename>", methods=["GET"])
 def get(schemaname: str, tablename: str):
     flask_method_check()
     body = get_body_config(request)
@@ -45,7 +45,7 @@ def get(schemaname: str, tablename: str):
         ])
 
 
-@app.route("/db/<string:schema>/<string:table>/count", methods=["GET"])
+@app.route("/api/db/<string:schema>/<string:table>/count", methods=["GET"])
 def countItems(schema: str, table: str):
     with DatabaseConnection() as conn:
         return flask.jsonify(dbutil.get_count(connection=conn, schema=schema, table=table))
@@ -60,7 +60,7 @@ def get_openapi_spec(connection: DatabaseConnection, tables_meta):
                          columns=tables_meta[table.schema][table.table])
             )
             spec.update({
-                f'/db/{table.schema}/{table.table}/count': {
+                f'/api/db/{table.schema}/{table.table}/count': {
                     f'get': make_schema(
                         tags=[f"{format_name(table.schema)}/{format_name(table.table)}"],
                         summary=f"Get count for {format_name(table.table)}",

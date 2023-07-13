@@ -74,7 +74,7 @@ def get_openapi_spec(_, __):
                 }
             ),
         },
-        '/list-tables-meta?__format__=long': {
+        '/api/meta/list-tables-meta?__format__=long': {
             'get': make_schema(
                 tags=["Meta"],
                 summary="Gets Schema with their Tables and columns (short)",
