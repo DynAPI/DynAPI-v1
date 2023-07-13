@@ -17,15 +17,29 @@ def get_constraints(connection: DatabaseConnection, schema: str, table: str) -> 
     JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema
     AND tc.table_name = c.table_name AND ccu.column_name = c.column_name
     WHERE (constraint_type = 'PRIMARY KEY' OR constraint_type = 'FOREIGN KEY') and tc.table_name = 'inventory_system';;
-   """, [schema, table])
-    return [
-        Constraints(
-            constraint_name=row.constraint_name,
-            constraint_type=row.constraint_type,
-            referenced_table_name=row.referenced_table_name,
-            referenced_column_name=row.referenced_column_name,
-            data_type=row.data_type,
-            is_updatable=row.is_updatable
-        )
-        for row in cursor.fetchall()
-    ]
+    """, [schema, table])
+
+    tableConstraints = [ Constraints(
+        constraint_name=row.constraint_name,
+        constraint_type=row.constraint_type,
+        referenced_table_name=row.referenced_table_name,
+        referenced_column_name=row.referenced_column_name,
+        data_type=row.data_type,
+        is_updatable=row.is_updatable
+    )
+    for row in cursor.fetchall() ]
+
+    cursor.execute(r"""
+    """, [schema, table])
+
+    viewConstraints = [Constraints(
+        constraint_name=row.constraint_name,
+        constraint_type=row.constraint_type,
+        referenced_table_name=row.referenced_table_name,
+        referenced_column_name=row.referenced_column_name,
+        data_type=row.data_type,
+        is_updatable=row.is_updatable
+    )
+        for row in cursor.fetchall()]
+
+    return tableConstraints + viewConstraints

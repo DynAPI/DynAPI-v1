@@ -16,7 +16,7 @@ def list_tables(connection: DatabaseConnection) -> t.List[TableMeta]:
     FROM pg_catalog.pg_tables
     WHERE schemaname != 'information_schema' AND schemaname != 'pg_catalog'
     """)
-    return [
+    tables = [
         TableMeta(
             schema=row.schemaname,
             table=row.tablename,
@@ -24,3 +24,21 @@ def list_tables(connection: DatabaseConnection) -> t.List[TableMeta]:
         )
         for row in cursor.fetchall()
     ]
+    cursor.execute(r"""
+    select
+    table_schema as schemaname, table_name as tablename
+    from INFORMATION_SCHEMA.views
+    WHERE
+    table_schema != 'information_schema'
+    AND
+    table_schema != 'pg_catalog'
+     """)
+    views = [
+        TableMeta(
+            schema=row.schemaname,
+            table=row.tablename,
+            type="view",
+        )
+        for row in cursor.fetchall()
+    ]
+    return tables + views
