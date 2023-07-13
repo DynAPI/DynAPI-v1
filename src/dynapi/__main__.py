@@ -20,7 +20,8 @@ app = flask.Flask(
 )
 
 load_folder("extra")
-ROUTES = load_folder("routes")
+ROUTES = []
+ROUTES.extend(load_folder("routes"))
 if p.isdir("plugins"):
     load_folder("plugins")
 

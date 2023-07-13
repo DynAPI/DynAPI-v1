@@ -9,7 +9,6 @@ import datetime
 import traceback
 from collections import defaultdict
 from database import DatabaseConnection, dbutil
-from util import minicache
 from exceptions import DoNotImportException
 from apiconfig import config
 
