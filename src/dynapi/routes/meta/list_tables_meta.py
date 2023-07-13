@@ -7,6 +7,7 @@ import flask
 from flask import request
 from __main__ import app
 from database import DatabaseConnection, dbutil
+from apiutil import make_schema, schematypes as s
 
 
 @app.route("/list-tables-meta")
@@ -45,123 +46,68 @@ def transform_format_short2long(short):
 
 
 def get_openapi_spec(_, __):
-    def get_basic_meta(schema: dict, fmt: str):
-        return {
-            'get': {
-                'tags': ["Meta"],
-                'summary': f"Gets Schema with their Tables and columns ({fmt})",
-                'parameters': [
-                    {
-                        'name': "__format__",
-                        'in': "query",
-                        'description': "Response Format",
-                        'schema': dict(
-                            type="string",
-                            enum=["short", "long"],
-                            default="short",
-                            example=fmt,
-                        )
-                    },
-                ],
-                'responses': {
-                    '200': {
-                        'description': "Successful operation",
-                        'content': {
-                            "application/json": {
-                                'schema': schema
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
     return {
-        # format: short
-        # {
-        #     schema: {
-        #         table: {
-        #             id: {},
-        #             name: {}
-        #         },
-        #     },
-        # }
-        '/list-tables-meta': get_basic_meta({
-            'type': "object",
-            'properties': {
-                'schema': {
-                    'type': "object",
-                    'properties': {
-                        'table': {
-                            'type': "object",
-                            'properties': {
-                                'column': {
-                                    'type': "object",
-                                    'properties': {
-                                        'column_name': {
-                                            'type': "string"
-                                        },
-                                        'data_type': {
-                                            'type': "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+        '/list-tables-meta': {
+            'get': make_schema(
+                tags=["Meta"],
+                summary="Gets Schema with their Tables and columns (short)",
+                query=dict(
+                    __format__=dict(
+                        description="Format of tables-meta",
+                        schema=s.String()
+                        .enum(["short", "long"])
+                        .default("short")
+                        .example("long")
+                    )
+                ),
+                responses={
+                    200: s.Object({
+                        '[schema]': s.Object({
+                            '[table]': s.Object({
+                                '[column]': s.Object(
+                                    name=s.String(),
+                                    data_type=s.String(),
+                                )
+                            })
+                        })
+                    }),
                 }
-            }
-        }, "short"),
-        # format: long
-        # [
-        #     {
-        #         schema_name: string,
-        #         tabels: [
-        #             {
-        #                 table_name: string
-        #                 columns: [
-        #                     {
-        #                         column_name: string
-        #                     }
-        #                 ]
-        #             }
-        #         ]
-        #     }
-        # ]
-        '/list-tables-meta?__format__=long': get_basic_meta({
-            'type': "array",
-            'items': {
-                'type': "object",
-                'properties': {
-                    'schema_name': {
-                        'type': "string",
-                    },
-                    'tables': {
-                        'type': "array",
-                        'items': {
-                            'type': "object",
-                            'properties': {
-                                'table_name': {
-                                    'type': "string",
-                                },
-                                'columns': {
-                                    'type': "array",
-                                    'items': {
-                                        'type': "object",
-                                        'properties': {
-                                            'column_name': {
-                                                'type': "string"
-                                            },
-                                            'data_type': {
-                                                'type': "string"
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                        }
-                    }
-                },
-            }
-        }, "long")
+            ),
+        },
+        '/list-tables-meta?__format__=long': {
+            'get': make_schema(
+                tags=["Meta"],
+                summary="Gets Schema with their Tables and columns (short)",
+                query=dict(
+                    __format__=dict(
+                        description="Format of tables-meta",
+                        schema=s.String()
+                        .enum(["short", "long"])
+                        .default("short")
+                        .example("long")
+                    )
+                ),
+                responses={
+                    200: s.Array(
+                        s.Object(
+                            schema_name=s.String(),
+                            tables=s.Array(
+                                s.Object(
+                                    table_name=s.String(),
+                                    columns=s.Array(
+                                        s.Object(
+                                            column_name=s.String(),
+                                            specs=s.Object(
+                                                name=s.String(),
+                                                data_type=s.String(),
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                }
+            ),
+        }
     }
