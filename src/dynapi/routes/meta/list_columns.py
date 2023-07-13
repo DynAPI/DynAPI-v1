@@ -10,7 +10,7 @@ from apiutil.makespec import POSTGRES2OPENAPI
 from apiutil import make_schema, schematypes as s
 
 
-@app.route("/list-columns/<string:schemaname>/<string:tablename>")
+@app.route("/api/meta/<string:schemaname>/<string:tablename>/list-columns")
 def columns(schemaname: str, tablename: str):
     with DatabaseConnection() as connection:
         cols = dbutil.list_columns(connection=connection, schema=schemaname, table=tablename)
@@ -22,7 +22,7 @@ def columns(schemaname: str, tablename: str):
 
 def get_openapi_spec(_, __):
     return {
-        '/list-columns/{schemaname}/{tablename}': {
+        '/api/meta/{schemaname}/{tablename}/list-columns': {
             'get': make_schema(
                 tags=["Meta"],
                 summary="Gets all columns of a specific table within a schema",

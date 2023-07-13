@@ -26,7 +26,7 @@ class Status:
     database: Database
 
 
-@app.route("/status")
+@app.route("/api/status")
 def status():
     try:
         with DatabaseConnection():
@@ -55,7 +55,7 @@ def status():
 
 def get_openapi_spec(_, __):
     return {
-        '/status': {
+        '/api/status': {
             'get': make_schema(
                 tags=["Meta"],
                 summary="Check status of API and Database",

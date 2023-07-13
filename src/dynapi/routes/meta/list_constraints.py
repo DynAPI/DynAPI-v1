@@ -9,7 +9,7 @@ from database import DatabaseConnection, dbutil
 from apiutil import make_schema, schematypes as s
 
 
-@app.route("/db/<string:schema>/<string:table>/constraints", methods=["GET"])
+@app.route("/api/meta/<string:schema>/<string:table>/constraints", methods=["GET"])
 def getConstraints(schema: str, table: str):
     with DatabaseConnection() as conn:
         return flask.jsonify(
@@ -19,7 +19,7 @@ def getConstraints(schema: str, table: str):
 
 def get_openapi_spec(_, __):
     return {
-        '/constraints/{schemaname}/{tablename}': {
+        '/api/meta/{schemaname}/{tablename}/constraints': {
             'get': make_schema(
                 tags=["Meta"],
                 summary="Get the constrains of a table",

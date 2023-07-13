@@ -10,7 +10,7 @@ from database import DatabaseConnection, dbutil
 from apiutil import make_schema, schematypes as s
 
 
-@app.route("/list-tables-meta")
+@app.route("/api/meta/list-tables-meta")
 def list_tables_meta():
     with DatabaseConnection() as connection:
         meta_data = dbutil.list_tables_meta(connection=connection)
@@ -47,7 +47,7 @@ def transform_format_short2long(short):
 
 def get_openapi_spec(_, __):
     return {
-        '/list-tables-meta': {
+        '/api/meta/list-tables-meta': {
             'get': make_schema(
                 tags=["Meta"],
                 summary="Gets Schema with their Tables and columns (short)",
