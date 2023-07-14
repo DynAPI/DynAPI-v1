@@ -20,10 +20,13 @@ rm "build/dynapi/api.conf"
 
 # install dependencies into (new) copied source-code directory
 echo "Installing dependencies..."
-python3 -m pip install -q -r "requirements.txt" -t "build/dynapi/" --compile --disable-pip-version-check
+python3 -m pip install -q -r "requirements-names.txt" -t "build/dynapi/" --compile --disable-pip-version-check
 rm -rf build/dynapi/*.dist-info
 
 echo "Installing scripts..."
+echo "Build for python $(python3 -V)
+$(cat /etc/os-release)
+" > "build/dynapi/meta.info"
 cp "scripts/dynapi.run.sh" "build/dynapi/dynapi.run"
 chmod +x "build/dynapi/dynapi.run"
 
