@@ -24,6 +24,7 @@ Homepage: https://github.com/DynAPI/
 Description: Dynamic API for (postgresql) Databases
 $(sed 's/^/ /' scripts/extra/description.txt)
 " > $PKG/DEBIAN/control
+
 echo "#!/usr/bin/env sh
 echo \"
 Thanks for installing :)
@@ -37,4 +38,7 @@ cp -r $SRC $PKG/opt/
 mkdir -p $PKG/etc/systemd/system
 cp scripts/extra/dynapi.service $PKG/etc/systemd/system
 
-dpkg-deb --build $PKG build/dynapi-${version}.deb
+mkdir -p $PKG/etc/dynapi/
+cp src/dynapi/api.conf.template $PKG/etc/dynapi/
+
+dpkg-deb --build $PKG build/dynapi-"${version}".deb
