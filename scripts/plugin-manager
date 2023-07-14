@@ -42,7 +42,7 @@ function list_plugins() {
     fi
 
     name="$(basename -s .py "$file")"
-    description="$(grep -Pzo '(?s)r?"""\K.*(?=""")' "$file" | tr -d '\0')"
+    description="$(grep -Pzo '(?s)r?"""\K.*?(?=""")' "$file" | tr -d '\0')"
     output="$(print_centered "$name")
 Status: $(get_plugin_status)
 $description
