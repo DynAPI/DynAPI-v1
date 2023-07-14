@@ -11,23 +11,28 @@ mkdir -p "build/"
 [[ -f "build/dynapi.tgz" ]] && rm -rf "build/dynapi.tgz"
 
 # copy source code
-cp -r "src/dynapi/" "build/dynapi"
+echo "Copying code..."
+cp -Lr "src/dynapi/" "build/dynapi"
 
 # cleanup of copied
 find build/dynapi -type d -iname __pycache__ -prune -exec rm -rf "{}" \;
 rm "build/dynapi/api.conf"
 
 # install dependencies into (new) copied source-code directory
+echo "Installing dependencies..."
 python3 -m pip install -q -r "requirements.txt" -t "build/dynapi/" --compile --disable-pip-version-check
 rm -rf build/dynapi/*.dist-info
 
+echo "Installing scripts..."
 cp "scripts/dynapi.run.sh" "build/dynapi/dynapi.run"
 chmod +x "build/dynapi/dynapi.run"
 
+#echo "Opimizations..."
 #python3 -m compileall "build/dynapi/" -b -q
 #find build/dynapi -name "*.py" -type f -delete
-pyminify build/dynapi --in-place
+#pyminify build/dynapi --in-place
 
+echo "Created archive of build..."
 tar -czf build/dynapi.tgz build/dynapi
 
 echo "Build successful"

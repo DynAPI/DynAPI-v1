@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+set -e
+
+cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
+
+SOURCE="plugins"
+TARGET="src/dynapi/plugins"
+
+FGG="\e[32m"
+FGR="\e[31m"
+FG="\e[39m"
+
+PYFNREGEX='^[a-z][a-z_]*\.py$'
+
+function get_width() {
+  COLUMNS=$(tput cols)
+  echo $((COLUMNS > 80 ? 80 : COLUMNS))
+}
+
+function print_centered() {
+  COLS=$(get_width)
+  padding="$(printf '%0.1s' ={1..500})"
+  printf '%*.*s %s %*.*s\n' 0 "$(((COLS-2-${#1})/2))" "$padding" "$1" 0 "$(((COLS-1-${#1})/2))" "$padding"
+}
+
+function get_plugin_status() {
+    if [ -L "$TARGET/$(basename "$file")" ]; then
+      echo -e "${FGG}active${FG}"
+    else
+      echo -e "${FGR}inactive${FG}"
+    fi
+}
+
+
+function list_plugins() {
+  for file in "$SOURCE"/*.py; do
+    filename=$(basename "$file")
+    if [[ ! "$filename" =~ $PYFNREGEX ]]; then
+      echo -e "${FGR}Bad filename:${FG} '$filename'"
+      continue
+    fi
+
+    name="$(basename -s .py "$file")"
+    description="$(grep -Pzo '(?s)r?"""\K.*(?=""")' "$file" | tr -d '\0')"
+    output="$(print_centered "$name")
+Status: $(get_plugin_status)
+$description
+"
+
+    if [ "$1" ] && ! (echo "$output" | grep -iq "$1"); then
+      continue
+    fi
+
+    echo "$output" | fold -sw "$(get_width)" | grep --color=always -iE "$1|$"
+  done
+}
+
+function activate_plugin() {
+    file=${1%.py}.py
+    source="$SOURCE/$file"
+    if [ ! -f "$source" ]; then
+      echo "Plugin '$1' not found"
+      return 1
+    fi
+    target="$TARGET/$file"
+    if [ -f "$target" ]; then
+      echo "Plugin '$1' is already active"
+      return 1
+    fi
+    ln -r -s "$source" "$target"
+    echo "Successfully activated '$1'"
+}
+
+function deactivate_plugin() {
+    file=${1%.py}.py
+    source="$SOURCE/$file"
+    if [ ! -f "$source" ]; then
+      echo "Warning: Plugin '$1' not found"
+    fi
+    target="$TARGET/$file"
+    if [ -f "$source" ] && [ ! -L "$target" ]; then
+      echo "Plugin '$1' is not active"
+      return 1
+    fi
+    rm "$target"
+    echo "Successfully deactivated '$1'"
+}
+
+function print_help() {
+  echo "plugin-manager {list,activate/enable,deactivate/disable}"
+  echo "plugin-manager list [query]"
+  echo "plugin-manager activate <plugin-name>"
+  echo "plugin-manager deactivate <plugin-name>"
+}
+
+
+case "$1" in
+"list")
+  list_plugins "${@:2}"
+;;
+"activate" | "enable")
+  activate_plugin "${@:2}"
+;;
+"deactivate" | "disable")
+  deactivate_plugin "${@:2}"
+;;
+*)
+  print_help "${@:2}"
+  ;;
+esac

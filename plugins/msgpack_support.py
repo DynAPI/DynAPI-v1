@@ -1,7 +1,10 @@
 #!/usr/bin/python3
 # -*- coding=utf-8 -*-
 r"""
-
+Name: msgpack-support
+Dependencies: msgpack
+Description:
+Allows the API to respond with msgpack instead of json if the request allows it
 """
 import uuid
 import decimal
