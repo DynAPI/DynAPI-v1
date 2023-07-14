@@ -4,5 +4,11 @@ cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
 
 . scripts/make-build
 
+version=$(grep -Pzo '(?s)__version__ = "\K.*?(?=")' "src/dynapi/__main__.py" | tr -d '\0')
+
+cp scripts/extra/dynapi.service build/dynapi/
+
 echo "Created archive of build..."
-tar -czf build/dynapi.tgz build/dynapi
+cd build
+tar -czf dynapi-"${version}".tgz dynapi/
+cd ..

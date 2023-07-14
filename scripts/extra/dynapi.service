@@ -4,7 +4,7 @@ Documentation=https://dynapi.readthedocs.org/
 
 [Service]
 Type=idle
-WorkingDirectory=/opt/dynapi
+WorkingDirectory=/opt/dynapi/
 ExecStart=/usr/bin/python3 /opt/dynapi/__main__.py
 Restart=on-failure
 RestartSec=3

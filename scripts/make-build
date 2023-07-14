@@ -8,7 +8,8 @@ mkdir -p "build/"
 
 # copy source code
 echo "Copying code..."
-cp -Lr "src/dynapi/" "build/dynapi"
+cp -Lr "src/dynapi/" "build/dynapi/"
+cp README.md "build/dynapi/"
 
 # cleanup of copied
 find build/dynapi -type d -iname __pycache__ -prune -exec rm -rf "{}" \;
@@ -20,8 +21,9 @@ python3 -m pip install -q -r "requirements-names.txt" -t "build/dynapi/" --compi
 rm -rf build/dynapi/*.dist-info
 
 echo "Installing scripts..."
-echo "Build for python $(python3 -V)
-$(cat /etc/os-release)
+echo "Build for $(python3 -V)
+OS Detail:
+$(sed 's/^/ /' /etc/os-release)
 " > "build/dynapi/meta.info"
 cp "scripts/extra/dynapi.run.sh" "build/dynapi/dynapi.run"
 chmod +x "build/dynapi/dynapi.run"
