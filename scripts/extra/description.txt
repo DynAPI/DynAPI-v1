@@ -1,0 +1,3 @@
+Dynamic RestAPI with documentation (swagger and redoc).
+.
+It's greatly customizable through the config-file and the plugin-system with many pre-defined plugins.

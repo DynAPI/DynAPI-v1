@@ -1,0 +1,13 @@
+[Unit]
+Description=Dynamic API for (postgresql) Databases
+Documentation=https://dynapi.readthedocs.org/
+
+[Service]
+Type=idle
+WorkingDirectory=/opt/dynapi
+ExecStart=/usr/bin/python3 /opt/dynapi/__main__.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

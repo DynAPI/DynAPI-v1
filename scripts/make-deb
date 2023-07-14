@@ -1,3 +1,40 @@
 #!/usr/bin/env bash
 set -e
 cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
+
+SRC=build/dynapi/
+PKG=build/pkg
+
+[ -f "$PKG" ] && rm -rf "$PKG"
+
+. scripts/make-build
+
+mkdir -p $PKG/DEBIAN
+
+version=$(grep -Pzo '(?s)__version__ = "\K.*?(?=")' "src/dynapi/__main__.py" | tr -d '\0')
+
+echo "
+Package: DynAPI
+Version: ${version}
+Architecture: all
+Maintainer: PlayerG9
+Installed-Size: $(du -s $SRC | awk '{ print $1 }')
+Depends: python3
+Homepage: https://github.com/DynAPI/
+Description: Dynamic API for (postgresql) Databases
+$(sed 's/^/ /' scripts/extra/description.txt)
+" > $PKG/DEBIAN/control
+echo "#!/usr/bin/env sh
+echo \"
+Thanks for installing :)
+\"
+" > $PKG/DEBIAN/postinst
+chmod +x $PKG/DEBIAN/postinst
+
+mkdir -p $PKG/opt/
+cp -r $SRC $PKG/opt/
+
+mkdir -p $PKG/etc/systemd/system
+cp scripts/extra/dynapi.service $PKG/etc/systemd/system
+
+dpkg-deb --build $PKG build/dynapi-${version}.deb

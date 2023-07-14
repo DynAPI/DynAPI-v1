@@ -4,7 +4,7 @@ cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
 
 # create build directory
 mkdir -p "build/"
-rm -rf "build/"*
+[ -d "build/dynapi/" ] && rm -rf "build/dynapi/"
 
 # copy source code
 echo "Copying code..."
@@ -23,7 +23,7 @@ echo "Installing scripts..."
 echo "Build for python $(python3 -V)
 $(cat /etc/os-release)
 " > "build/dynapi/meta.info"
-cp "scripts/dynapi.run.sh" "build/dynapi/dynapi.run"
+cp "scripts/extra/dynapi.run.sh" "build/dynapi/dynapi.run"
 chmod +x "build/dynapi/dynapi.run"
 
 #echo "Opimizations..."
