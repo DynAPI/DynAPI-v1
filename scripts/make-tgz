@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -e
+cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
+
+. scripts/make-build
+
+echo "Created archive of build..."
+tar -czf build/dynapi.tgz build/dynapi

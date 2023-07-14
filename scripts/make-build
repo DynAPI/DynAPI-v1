@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
 set -e
-
 cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
 
 # create build directory
 mkdir -p "build/"
-
-# remove old source-code
-[[ -d "build/dynapi/" ]] && rm -rf "build/dynapi/"
-[[ -f "build/dynapi.tgz" ]] && rm -rf "build/dynapi.tgz"
+rm -rf "build/"*
 
 # copy source code
 echo "Copying code..."
@@ -34,8 +30,5 @@ chmod +x "build/dynapi/dynapi.run"
 #python3 -m compileall "build/dynapi/" -b -q
 #find build/dynapi -name "*.py" -type f -delete
 #pyminify build/dynapi --in-place
-
-echo "Created archive of build..."
-tar -czf build/dynapi.tgz build/dynapi
 
 echo "Build successful"
