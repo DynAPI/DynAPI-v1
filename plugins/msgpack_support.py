@@ -11,8 +11,8 @@ import decimal
 import dataclasses
 from datetime import date
 import flask
-import msgpack
 from werkzeug.http import http_date
+import msgpack
 from apiconfig import config
 
 
@@ -29,7 +29,7 @@ def msgpack_default(o):
         return dataclasses.asdict(o)
     if hasattr(o, "__html__"):
         return str(o.__html__())
-    raise TypeError(f"Object of type '{type(o).__name__}' is not JSON serializable")
+    raise TypeError(f"Object of type '{type(o).__name__}' is not MSGPACK serializable")
 
 
 def msgpack_jsonify(*args, **kwargs):
