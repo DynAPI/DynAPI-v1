@@ -57,34 +57,36 @@ $description
 }
 
 function activate_plugin() {
-    file=${1%.py}.py
-    source="$SOURCE/$file"
-    if [ ! -f "$source" ]; then
-      echo "Plugin '$1' not found"
-      return 1
-    fi
-    target="$TARGET/$file"
-    if [ -f "$target" ]; then
-      echo "Plugin '$1' is already active"
-      return 1
-    fi
-    ln -r -s "$source" "$target"
-    echo "Successfully activated '$1'"
+  file=${1%.py}.py
+  file=${file//-/_}
+  source="$SOURCE/$file"
+  if [ ! -f "$source" ]; then
+    echo "Plugin '$1' not found"
+    return 1
+  fi
+  target="$TARGET/$file"
+  if [ -f "$target" ]; then
+    echo "Plugin '$1' is already active"
+    return 1
+  fi
+  ln -r -s "$source" "$target"
+  echo "Successfully activated '$1'"
 }
 
 function deactivate_plugin() {
-    file=${1%.py}.py
-    source="$SOURCE/$file"
-    if [ ! -f "$source" ]; then
-      echo "Warning: Plugin '$1' not found"
-    fi
-    target="$TARGET/$file"
-    if [ -f "$source" ] && [ ! -L "$target" ]; then
-      echo "Plugin '$1' is not active"
-      return 1
-    fi
-    rm "$target"
-    echo "Successfully deactivated '$1'"
+  file=${1%.py}.py
+  file=${file//-/_}
+  source="$SOURCE/$file"
+  if [ ! -f "$source" ]; then
+    echo "Warning: Plugin '$1' not found"
+  fi
+  target="$TARGET/$file"
+  if [ -f "$source" ] && [ ! -L "$target" ]; then
+    echo "Plugin '$1' is not active"
+    return 1
+  fi
+  rm "$target"
+  echo "Successfully deactivated '$1'"
 }
 
 function print_help() {
