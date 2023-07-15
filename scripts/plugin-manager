@@ -105,7 +105,11 @@ case "$1" in
 "deactivate" | "disable")
   deactivate_plugin "${@:2}"
 ;;
-*)
+"help" | "--help" | "-h")
   print_help "${@:2}"
-  ;;
+;;
+*)
+  echo "Unknown command '$1'"
+  print_help "${@:2}"
+;;
 esac
