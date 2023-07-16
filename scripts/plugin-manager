@@ -35,38 +35,38 @@ function warn() {
     echo "$@"
 }
 
-function get_plugin_status() {
-    if [ -L "$TARGET/$(basename "$plugin")" ]; then
-      echo -e "${FGG}active${FG}"
-    else
-      echo -e "${FGR}inactive${FG}"
-    fi
-}
-
-
 function list_plugins() {
-  for folder in "$SOURCE"/*/; do
-    if [[ ! -f "${folder}/__init__.py" ]]; then
+  for module in "$SOURCE"/**/*/__init__.py; do
+    if [[ ! -f "${module}" ]]; then
       continue
     fi
+    folder=$(dirname "${module}")
 
-    name="$(basename "${folder}")"
-    description="$(cat "${folder}/description")"
-#    description="$(grep -Pzo '(?s)r?"""\K.*?(?=""")' "$plugin" | tr -d '\0')"
-    dependencies=$(cat "${folder}/dependencies")
-    output="$(print_centered "${name}")
-Status: $(get_plugin_status)
-$description
+    name="${folder#"$SOURCE/"}"
+    output=$"$(print_centered "${name}")\n"
 
+    if [ -L "$TARGET/${name////_}" ]; then
+      output+=$"Status: ${FGG}active${FG}\n"
+    else
+      output+=$"Status: ${FGR}inactive${FG}\n"
+    fi
+
+    if [ -f "$folder/description" ]; then
+      output+=$"$(cat "${folder}/description")\n"
+    fi
+
+    if [ -f "$folder/dependencies" ]; then
+      output+="
 Dependencies:
-$(echo "$dependencies" | sed 's/^/- /')
+$(sed 's/^/- /' "${folder}/dependencies")
 "
+    fi
 
     if [ "$1" ] && ! (echo "$output" | grep -iq "$1"); then
       continue
     fi
 
-    echo "$output" | fold -sw "$(get_width)" | grep --color=always -iE "$1|$"
+    echo -e "$output" | fold -sw "$(get_width)" | grep --color=always -iE "$1|$"
   done
 }
 
@@ -77,7 +77,7 @@ function enable_plugin() {
     echo "Plugin '$1' not found"
     return 1
   fi
-  target="$TARGET/$plugin"
+  target="$TARGET/${plugin////_}"
   if [ -L "$target" ]; then
     echo "Plugin '$1' is already active"
     return 1
@@ -92,7 +92,7 @@ function disable_plugin() {
   if [ ! -f "$source/__init__.py" ]; then
     warn "Plugin '$1' not found"
   fi
-  target="$TARGET/$plugin"
+  target="$TARGET/${plugin////_}"
   if [ ! -L "$target" ]; then
     echo "Plugin '$1' is not active"
     return 1
@@ -108,12 +108,14 @@ function activate_plugin() {
     echo "Plugin '$1' not found"
     return 1
   fi
-  target="$TARGET/$plugin"
+  target="$TARGET/${plugin////_}"
   if [ -f "$target" ]; then
     echo "Plugin '$1' is already active"
     return 1
   fi
-  $PIP install -q -r "$source/dependencies"
+  if [[ -f "$target/dependencies" ]]; then
+    $PIP install -q -r "$source/dependencies"
+  fi
   echo "Installed plugin dependencies"
   ln -r -s "$source" "$target"
   echo "Successfully activated '$1'"
@@ -125,16 +127,18 @@ function deactivate_plugin() {
   if [ ! -f "$source/__init__.py" ]; then
     warn "Plugin '$1' not found"
   fi
-  target="$TARGET/$plugin"
+  target="$TARGET/${plugin////_}"
   if [ ! -L "$target" ]; then
     echo "Plugin '$1' is not active"
     return 1
   fi
-  if command -v pip-autoremove &> /dev/null; then
-    pip-autoremove "$(tr '\n' ' ' < "$target/dependencies")"
-  else
-    warn "pip-autoremove not found. Unclean dependencies removal (plugin-manager show-info)"
-    $PIP uninstall -q -y -r "$target/dependencies"
+  if [[ -f "$target/dependencies" ]]; then
+    if command -v pip-autoremove &> /dev/null; then
+      pip-autoremove "$(tr '\n' ' ' < "$target/dependencies")"
+    else
+      warn "pip-autoremove not found. Unclean dependencies removal (plugin-manager show-info)"
+      $PIP uninstall -q -y -r "$target/dependencies"
+    fi
   fi
   echo "Uninstalled plugin dependencies"
   rm -rf "$target"
