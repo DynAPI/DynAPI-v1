@@ -1,26 +1,22 @@
 #!/usr/bin/python3
 # -*- coding=utf-8 -*-
 r"""
-Name: msgpack-support
-Dependencies: dicttoxml
-Description:
-Allows the API to respond with xml instead of json if the request allows it
+
 """
 import uuid
 import decimal
 import dataclasses
 from datetime import date
 import flask
-import dicttoxml
 from werkzeug.http import http_date
+import msgpack
 from apiconfig import config
 
 
 flask_jsonify = flask.jsonify
-dicttoxml_convert = dicttoxml.convert
 
 
-def xml_default(o):
+def msgpack_default(o):
     # this function is similar/identical to flask.json.JsonEncoder.default(self, o)
     if isinstance(o, date):
         return http_date(o)
@@ -30,20 +26,12 @@ def xml_default(o):
         return dataclasses.asdict(o)
     if hasattr(o, "__html__"):
         return str(o.__html__())
-    raise TypeError(f"Object of type '{type(o).__name__}' is not JSON serializable")
+    raise TypeError(f"Object of type '{type(o).__name__}' is not MSGPACK serializable")
 
 
-def xml_convert(obj, *args, **kwargs):
-    try:
-        obj = xml_default(obj)
-    except TypeError:
-        pass
-    return dicttoxml_convert(obj, *args, **kwargs)
-
-
-def xml_jsonify(*args, **kwargs):
+def msgpack_jsonify(*args, **kwargs):
     accept_mimetypes = flask.request.accept_mimetypes
-    if 'application/xml' in accept_mimetypes or 'text/xml' in accept_mimetypes:
+    if 'application/msgpack' in accept_mimetypes or 'application/x-msgpack' in accept_mimetypes:
         if args and kwargs:
             raise TypeError("jsonify() behavior undefined when passed both args and kwargs")
         elif len(args) == 1:  # single args are passed directly to dumps()
@@ -52,12 +40,11 @@ def xml_jsonify(*args, **kwargs):
             data = args or kwargs
 
         return flask.current_app.response_class(
-            dicttoxml.dicttoxml(data, xml_declaration=False, attr_type=True),
-            mimetype="application/xml",
+            msgpack.dumps(data, default=msgpack_default),
+            mimetype="application/msgpack",
         )
     return flask_jsonify(*args, **kwargs)
 
 
-if config.getboolean("api", "xml", fallback=False):
-    dicttoxml.convert = xml_convert
-    flask.jsonify = xml_jsonify
+if config.getboolean("api", "msgpack", fallback=False):
+    flask.jsonify = msgpack_jsonify
