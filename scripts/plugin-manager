@@ -3,6 +3,13 @@ set -e
 
 cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
 
+if [[ "$UNSAFE" = "true" ]]; then
+  echo -e "\e[33mWarning:\e[39m plugin-manager started unsafe (doesn't require a virtualenv)"
+  PIP="pip3"
+else
+  PIP="pip3 --require-virtualenv"
+fi
+
 SOURCE="plugins"
 TARGET="src/dynapi/plugins"
 mkdir -p "$TARGET"
@@ -106,7 +113,7 @@ function activate_plugin() {
     echo "Plugin '$1' is already active"
     return 1
   fi
-  pip3 install -q -r "$source/dependencies"
+  $PIP install -q -r "$source/dependencies"
   echo "Installed plugin dependencies"
   ln -r -s "$source" "$target"
   echo "Successfully activated '$1'"
@@ -127,7 +134,7 @@ function deactivate_plugin() {
     pip-autoremove "$(tr '\n' ' ' < "$target/dependencies")"
   else
     warn "pip-autoremove not found. Unclean dependencies removal (plugin-manager show-info)"
-    pip3 uninstall -q -y -r "$target/dependencies"
+    $PIP uninstall -q -y -r "$target/dependencies"
   fi
   echo "Uninstalled plugin dependencies"
   rm -rf "$target"
@@ -139,7 +146,7 @@ function fix_dependencies() {
       if [ ! -f "$depfile" ]; then
         continue
       fi
-      pip3 install -q -r "$depfile"
+      $PIP install -q -r "$depfile"
     done
     echo "Plugin-Dependencies should be up to date now"
 }
@@ -166,11 +173,17 @@ function print_help() {
 }
 
 function print_info() {
-    echo "During deactivation the plugin-manager attempts to remove all dependencies from a plugin." \
-      "The problem comes when a dependency has a sub-dependency." \
-      "With pip this doesn't get properly resolved." \
-      "If pip-autoremove is installed it is used instead of pip and properly removed the sub-dependencies." \
-      | fold -sw "$(get_width)"
+  print_centered "Plugin Dependencies removal"
+  echo "During deactivation the plugin-manager attempts to remove all dependencies from a plugin." \
+    "The problem comes when a dependency has a sub-dependency." \
+    "With pip this doesn't get properly resolved." \
+    "If pip-autoremove is installed it is used instead of pip and properly removed the sub-dependencies." \
+    | fold -sw "$(get_width)"
+
+  print_centered "virtualenv"
+  echo "plugin-manager is configured to prevent installing dependencies into the global python interpreter." \
+    "Start plugin-manager with 'UNSAFE=true plugin-manager ...' to ignore this feature" \
+    | fold -sw "$(get_width)"
 }
 
 
