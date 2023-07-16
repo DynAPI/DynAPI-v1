@@ -36,3 +36,18 @@ def load_folder(folder: str):
             else:
                 modules.append(module)
     return modules
+
+
+def load_plugins():
+    plugins = []
+    for name in os.listdir("plugins"):
+        if name.startswith("_"):
+            continue
+        try:
+            plugin = importlib.import_module(f"plugins.{name}")
+        except DoNotImportException:
+            print(f"{TCodes.FG_YELLOW}Disabled Plugin: {name}{TCodes.RESTORE_FG}")
+        else:
+            print(f"{TCodes.FG_GREEN}Loaded Plugin: {name}{TCodes.RESTORE_FG}")
+            plugins.append(plugin)
+    return plugins
