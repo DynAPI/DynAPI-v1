@@ -9,9 +9,8 @@ mkdir -p "$TARGET"
 
 FGG="\e[32m"
 FGR="\e[31m"
+FGY="\e[33m"
 FG="\e[39m"
-
-PYFNREGEX='^[a-z][a-z_]*\.py$'
 
 function get_width() {
   COLUMNS=$(tput cols)
@@ -24,8 +23,13 @@ function print_centered() {
   printf '%*.*s %s %*.*s\n' 0 "$(((COLS-2-${#1})/2))" "$padding" "$1" 0 "$(((COLS-1-${#1})/2))" "$padding"
 }
 
+function warn() {
+    echo -e -n "${FGY}Warning:${FG} "
+    echo "$@"
+}
+
 function get_plugin_status() {
-    if [ -L "$TARGET/$(basename "$file")" ]; then
+    if [ -L "$TARGET/$(basename "$plugin")" ]; then
       echo -e "${FGG}active${FG}"
     else
       echo -e "${FGR}inactive${FG}"
@@ -34,18 +38,21 @@ function get_plugin_status() {
 
 
 function list_plugins() {
-  for file in "$SOURCE"/*.py; do
-    filename=$(basename "$file")
-    if [[ ! "$filename" =~ $PYFNREGEX ]]; then
-      echo -e "${FGR}Bad filename:${FG} '$filename'"
+  for folder in "$SOURCE"/*/; do
+    if [[ ! -f "${folder}/__init__.py" ]]; then
       continue
     fi
 
-    name="$(basename -s .py "$file")"
-    description="$(grep -Pzo '(?s)r?"""\K.*?(?=""")' "$file" | tr -d '\0')"
-    output="$(print_centered "$name")
+    name="$(basename "${folder}")"
+    description="$(cat "${folder}/description")"
+#    description="$(grep -Pzo '(?s)r?"""\K.*?(?=""")' "$plugin" | tr -d '\0')"
+    dependencies=$(cat "${folder}/dependencies")
+    output="$(print_centered "${name}")
 Status: $(get_plugin_status)
 $description
+
+Dependencies:
+$(echo "$dependencies" | sed 's/^/- /')
 "
 
     if [ "$1" ] && ! (echo "$output" | grep -iq "$1"); then
@@ -56,44 +63,114 @@ $description
   done
 }
 
-function activate_plugin() {
-  file=${1%.py}.py
-  file=${file//-/_}
-  source="$SOURCE/$file"
-  if [ ! -f "$source" ]; then
+function enable_plugin() {
+  plugin=${1//-/_}
+  source="$SOURCE/$plugin"
+  if [ ! -f "$source/__init__.py" ]; then
     echo "Plugin '$1' not found"
     return 1
   fi
-  target="$TARGET/$file"
+  target="$TARGET/$plugin"
+  if [ -L "$target" ]; then
+    echo "Plugin '$1' is already active"
+    return 1
+  fi
+  ln -r -s "$source" "$target"
+  echo "Successfully enabled '$1'"
+}
+
+function disable_plugin() {
+  plugin=${1//-/_}
+  source="$SOURCE/$plugin"
+  if [ ! -f "$source/__init__.py" ]; then
+    warn "Plugin '$1' not found"
+  fi
+  target="$TARGET/$plugin"
+  if [ ! -L "$target" ]; then
+    echo "Plugin '$1' is not active"
+    return 1
+  fi
+  rm "$target"
+  echo "Successfully disabled '$1'"
+}
+
+function activate_plugin() {
+  plugin=${1//-/_}
+  source="$SOURCE/$plugin"
+  if [ ! -f "$source/__init__.py" ]; then
+    echo "Plugin '$1' not found"
+    return 1
+  fi
+  target="$TARGET/$plugin"
   if [ -f "$target" ]; then
     echo "Plugin '$1' is already active"
     return 1
   fi
+  pip3 install -q -r "$source/dependencies"
+  echo "Installed plugin dependencies"
   ln -r -s "$source" "$target"
   echo "Successfully activated '$1'"
 }
 
 function deactivate_plugin() {
-  file=${1%.py}.py
-  file=${file//-/_}
-  source="$SOURCE/$file"
-  if [ ! -f "$source" ]; then
-    echo "Warning: Plugin '$1' not found"
+  plugin=${1//-/_}
+  source="$SOURCE/$plugin"
+  if [ ! -f "$source/__init__.py" ]; then
+    warn "Plugin '$1' not found"
   fi
-  target="$TARGET/$file"
-  if [ -f "$source" ] && [ ! -L "$target" ]; then
+  target="$TARGET/$plugin"
+  if [ ! -L "$target" ]; then
     echo "Plugin '$1' is not active"
     return 1
   fi
-  rm "$target"
+  if command -v pip-autoremove &> /dev/null; then
+    pip-autoremove "$(tr '\n' ' ' < "$target/dependencies")"
+  else
+    warn "pip-autoremove not found. Unclean dependencies removal (plugin-manager show-info)"
+    pip3 uninstall -q -y -r "$target/dependencies"
+  fi
+  echo "Uninstalled plugin dependencies"
+  rm -rf "$target"
   echo "Successfully deactivated '$1'"
 }
 
+function fix_dependencies() {
+    for depfile in "$TARGET"/*/dependencies; do
+      if [ ! -f "$depfile" ]; then
+        continue
+      fi
+      pip3 install -q -r "$depfile"
+    done
+    echo "Plugin-Dependencies should be up to date now"
+}
+
 function print_help() {
-  echo "plugin-manager {list,activate/enable,deactivate/disable}"
+  echo "plugin-manager {help,show-info,list,enable,disable,activate,deactivate}"
+  echo "plugin-manager help"
+  echo "    shows this message"
+  echo "plugin-manager show-info"
+  echo "    shows some meaningful messages"
   echo "plugin-manager list [query]"
+  echo "    shows available plugins and their status"
+  echo "plugin-manager enable <plugin-name>"
+  echo "    enable a plugin to be loaded (but doesn't install dependencies)"
+  echo "    this is helpful if you only want to build (scripts/make-build)"
+  echo "plugin-manager disable <plugin-name>"
+  echo "    disable a plugin to be loaded (but doesn't uninstall dependencies)"
   echo "plugin-manager activate <plugin-name>"
+  echo "    enable a plugin and install its dependencies"
   echo "plugin-manager deactivate <plugin-name>"
+  echo "    disable a plugin and uninstall its dependencies"
+  echo "plugin-manager fix-dependencies"
+  echo "    ensure that all plugin dependencies are installed"
+}
+
+function print_info() {
+    echo "During deactivation the plugin-manager attempts to remove all dependencies from a plugin." \
+      "The problem comes when a dependency has a sub-dependency." \
+      "With pip this doesn't get properly resolved." \
+      "If pip-autoremove is installed it is used instead of pip and properly removed the sub-dependencies." \
+      | fold -sw "$(get_width)"
 }
 
 
@@ -101,17 +178,29 @@ case "$1" in
 "list")
   list_plugins "${@:2}"
 ;;
-"activate" | "enable")
+"enable")
+  enable_plugin "${@:2}"
+;;
+"disable")
+  disable_plugin "${@:2}"
+;;
+"activate")
   activate_plugin "${@:2}"
 ;;
-"deactivate" | "disable")
+"deactivate")
   deactivate_plugin "${@:2}"
 ;;
-"help" | "--help" | "-h")
+"fix-deps" | "fix-dependencies")
+  fix_dependencies "${@:2}"
+;;
+"info" | "show-info")
+  print_info "${@:2}"
+;;
+"help" | "--help" | "-h" | "")
   print_help "${@:2}"
 ;;
 *)
-  echo "Unknown command '$1'"
+  warn "Unknown command '$1'"
   print_help "${@:2}"
 ;;
 esac
