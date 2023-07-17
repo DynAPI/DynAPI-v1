@@ -156,7 +156,7 @@ function fix_dependencies() {
 }
 
 function print_help() {
-  echo "plugin-manager {help,show-info,list,enable,disable,activate,deactivate}"
+  echo "plugin-manager {help,show-info,list,enable,disable,activate,deactivate,fix-dependencies}"
   echo "plugin-manager help"
   echo "    shows this message"
   echo "plugin-manager show-info"
