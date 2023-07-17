@@ -17,6 +17,8 @@ CONFIGURED_PASSWORD = config.get("auth", "password", fallback=None)
 if CONFIGURED_USERNAME and CONFIGURED_PASSWORD:
     @app.before_request
     def verify_authorization():
+        if not flask.request.path.startswith("/api"):
+            return
         authorization = flask.request.authorization
         if not authorization:
             flask.abort(http.HTTPStatus.UNAUTHORIZED)
