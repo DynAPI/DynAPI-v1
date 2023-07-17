@@ -12,7 +12,7 @@ from .fileconfig import config
 
 
 def is_globby(pat: str) -> bool:
-    return pat and ("*" in pat or "?" in pat)
+    return "*" in pat or "?" in pat
 
 
 def translate_globby(pat: str) -> str:
@@ -20,7 +20,7 @@ def translate_globby(pat: str) -> str:
 
 
 def get_worth(pat: str):
-    if not pat:
+    if pat == "?":
         return 0
     elif pat == "*":
         return 1
@@ -37,15 +37,15 @@ class ParsedSection:
         self.section = parts[0]
         if self.section != 'methods':
             raise KeyError(f"invalid section: {self.section!r}")
-        self.schema = parts[1] if len(parts) > 1 else None
+        self.schema = (parts[1] if len(parts) > 1 else None) or "*"
         self.schema_re = re.compile(translate_globby(self.schema), re.IGNORECASE) if self.schema else None
-        self.table = parts[2] if len(parts) > 2 else None
+        self.table = (parts[2] if len(parts) > 2 else None) or "*"
         self.table_re = re.compile(translate_globby(self.table), re.IGNORECASE) if self.table else None
 
         self.worth = get_worth(self.schema) + get_worth(self.table) * 10
 
     def __repr__(self):
-        return f"<{type(self).__name__} {self.schema or ''}:{self.table or ''}>"
+        return f"<{type(self).__name__} {self.schema}:{self.table}>"
 
     # used for sorting
     def __lt__(self, other: 'ParsedSection'):
@@ -72,6 +72,8 @@ def ordered_sections():
 
 @functools.lru_cache()
 def method_check(*, method: str, schema: str, table: str) -> bool:
+    for sec in ordered_sections():
+        print(sec)
     for section in ordered_sections():
         if section.match_schema(schema) is not False and section.match_table(table) is not False:
             allowed = config.getboolean(section.raw, method, fallback=None)
@@ -82,6 +84,8 @@ def method_check(*, method: str, schema: str, table: str) -> bool:
 
 # def flask_method_check(*, method: str, schema: str, table: str):
 def flask_method_check(*, method: str = None, schema: str = None, table: str = None):
+    if getattr(flask.g, 'method_checked', False):
+        return
     method = method or flask.request.method
     schema = schema or flask.request.view_args["schemaname"]
     table = table or flask.request.view_args["tablename"]
