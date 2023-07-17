@@ -82,13 +82,12 @@ def method_check(*, method: str, schema: str, table: str) -> bool:
     return False
 
 
-# def flask_method_check(*, method: str, schema: str, table: str):
-def flask_method_check(*, method: str = None, schema: str = None, table: str = None):
+def flask_method_check():
     if getattr(flask.g, 'method_checked', False):
         return
-    method = method or flask.request.method
-    schema = schema or flask.request.view_args["schemaname"]
-    table = table or flask.request.view_args["tablename"]
+    method = flask.request.method
+    schema = flask.request.view_args["schemaname"]
+    table = flask.request.view_args["tablename"]
     if not method_check(method=method, schema=schema, table=table):
         # flask.abort(http.HTTPStatus.FORBIDDEN)
         flask.abort(http.HTTPStatus.METHOD_NOT_ALLOWED)
