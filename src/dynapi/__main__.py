@@ -9,21 +9,21 @@ import flask
 import os.path as p
 from apiconfig import config
 from database import test_database_connection
-import dynamic_loader as dynload
+import dynamic_loader
 
 
 app = flask.Flask(
     __name__,
-    static_folder="web",
-    template_folder="web",
+    static_folder="web/static/",
+    template_folder="web/",
 )
 
 ROUTES = []
-PLUGINS = []
-dynload.load_folder("extra")
-ROUTES.extend(dynload.load_folder("routes"))
+PLUGINS = {}
+dynamic_loader.load_folder("extra")
+ROUTES.extend(dynamic_loader.load_folder("routes"))
 if p.isdir("plugins"):
-    PLUGINS.extend(dynload.load_plugins())
+    PLUGINS.update(dynamic_loader.load_plugins())
 
 
 if __name__ == '__main__':

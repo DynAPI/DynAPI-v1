@@ -39,7 +39,7 @@ def load_folder(folder: str):
 
 
 def load_plugins():
-    plugins = []
+    plugins = {}
     for name in os.listdir("plugins"):
         if name.startswith("_"):
             continue
@@ -49,5 +49,5 @@ def load_plugins():
             print(f"{TCodes.FG_YELLOW}Disabled Plugin: {name}{TCodes.RESTORE_FG}")
         else:
             print(f"{TCodes.FG_GREEN}Loaded Plugin: {name}{TCodes.RESTORE_FG}")
-            plugins.append(plugin)
+            plugins[name] = plugin
     return plugins
