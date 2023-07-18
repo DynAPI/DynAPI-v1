@@ -7,9 +7,9 @@ from __main__ import app
 import http
 import base64
 import flask
-from apiconfig import config
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
-from database import DatabaseConnection, dbutil
+from database import DatabaseConnection
+from .pwutil import compare_password_to_hash
 
 
 @app.before_request
@@ -28,8 +28,6 @@ def verify_authorization():
     # schemaname = flask.request.view_args["schemaname"]
     # tablename = flask.request.view_args["tablename"]
 
-    # dynapi.api_keys
-    # {api_key: string[, roles]}
     schemaname, tablename = 'dynapi', 'users'
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
@@ -37,15 +35,12 @@ def verify_authorization():
         query = Query \
             .from_(Schema(schemaname).__getattr__(tablename)) \
             .select('*') \
-            .where(
-                Criterion.all([
-                    table.username == username,
-                    table.passwordhash == password,
-                ])
-            )
+            .where(table.username == username)
         cursor.execute(str(query))
         row = cursor.fetchone()
         if not row:
+            raise flask.abort(http.HTTPStatus.UNAUTHORIZED)
+        if not compare_password_to_hash(password.encode(), base64.b64decode(row.passwordhash.encode())):
             raise flask.abort(http.HTTPStatus.UNAUTHORIZED)
 
 
