@@ -5,6 +5,7 @@ r"""
 """
 from __main__ import app
 import http
+import base64
 import flask
 from apiconfig import config
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
@@ -49,7 +50,7 @@ def verify_authorization():
 
 
 @app.before_first_request
-def create_tables():
+def create_users_table():
     from pypika import Column
 
     schemaname, tablename = 'dynapi', 'users'

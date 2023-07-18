@@ -49,7 +49,7 @@ def verify_authorization():
 
 
 @app.before_first_request
-def create_tables():
+def create_api_keys_table():
     from pypika import Column
 
     schemaname, tablename = 'dynapi', 'api_keys'
