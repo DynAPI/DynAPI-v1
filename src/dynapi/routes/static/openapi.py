@@ -3,10 +3,11 @@
 r"""
 
 """
-from __main__ import app, __version__, ROUTES
+from __main__ import app, __version__, ROUTES, PLUGINS
 import textwrap
 import datetime
 import traceback
+import itertools
 from collections import defaultdict
 from database import DatabaseConnection, dbutil
 from exceptions import DoNotImportException
@@ -24,7 +25,7 @@ def openapi():
         paths = defaultdict(dict)
         with DatabaseConnection() as connection:
             tables_meta = dbutil.list_tables_meta(connection=connection)
-            for route in ROUTES:
+            for route in itertools.chain(ROUTES, PLUGINS.values()):
                 if not hasattr(route, 'get_openapi_spec'):
                     continue
                 try:
