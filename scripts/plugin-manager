@@ -36,6 +36,8 @@ function warn() {
 }
 
 function list_plugins() {
+  listed=""
+
   for module in "$SOURCE"/**/*/__init__.py; do
     if [[ ! -f "${module}" ]]; then
       continue
@@ -66,8 +68,12 @@ $(sed 's/^/- /' "${folder}/dependencies")
       continue
     fi
 
-    echo -e "$output" | fold -sw "$(get_width)" | grep --color=always -iE "$1|$"
+    listed+="
+$(echo -e "$output" | fold -sw "$(get_width)" | grep --color=always -iE "$1|$")
+"
   done
+
+  echo "$listed" | less -R
 }
 
 function enable_plugin() {
