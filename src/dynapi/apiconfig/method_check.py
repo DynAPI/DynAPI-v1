@@ -72,8 +72,6 @@ def ordered_sections():
 
 @functools.lru_cache()
 def method_check(*, method: str, schema: str, table: str) -> bool:
-    for sec in ordered_sections():
-        print(sec)
     for section in ordered_sections():
         if section.match_schema(schema) is not False and section.match_table(table) is not False:
             allowed = config.getboolean(section.raw, method, fallback=None)

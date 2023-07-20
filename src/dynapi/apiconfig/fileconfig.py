@@ -38,6 +38,14 @@ config = configparser.ConfigParser(
     interpolation=configparser.ExtendedInterpolation(),
 )
 config.optionxform = lambda option: option.lower().replace('-', '_')  # 'Hello-World' => 'hello_world'
+config.read_string(r"""
+[methods:dynapi]
+get=False
+post=False
+delete=False
+put=False
+patch=False
+""")
 for location in [
     Path(argument_config_file or ""),
     Path(os.getenv("DYNAPI_CONF") or ""),
