@@ -6,9 +6,14 @@ https://www.postgresql.org/docs/current/sql-createindex.html
 from __main__ import app
 import http
 import flask
+from flask import g
 from apiconfig import config
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from database import DatabaseConnection, dbutil
+
+
+schemaname = config.get('auth', 'schema', fallback="dynapi")
+tablename = config.get('auth', 'api_key_table', fallback="api_keys")
 
 
 @app.before_request
@@ -19,10 +24,10 @@ def verify_authorization():
     api_key = flask.request.headers.get("x-api-key")
     if not api_key:
         raise flask.abort(http.HTTPStatus.UNAUTHORIZED)
-
+    g.user = api_key
     # dynapi.api_keys
     # {api_key: string[, roles]}
-    schemaname, tablename = 'dynapi', 'api_keys'
+
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
         table = Table(tablename)
@@ -52,7 +57,6 @@ def verify_authorization():
 def create_api_keys_table():
     from pypika import Column
 
-    schemaname, tablename = 'dynapi', 'api_keys'
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
 

@@ -5,7 +5,7 @@ r"""
 """
 from __main__ import app
 import flask
-from flask import request
+from flask import request, g
 from pypika import PostgreSQLQuery as Query, Schema, Table
 from database import DatabaseConnection, dbutil
 from apiconfig import flask_method_check, method_check
@@ -27,6 +27,7 @@ def post(schemaname: str, tablename: str):
 
         cursor.execute(str(query))
         conn.commit()
+        g.SQL = str(query)
         return flask.jsonify([
             {col.name: row[index] for index, col in enumerate(cursor.description)}
             for row in cursor.fetchall()
