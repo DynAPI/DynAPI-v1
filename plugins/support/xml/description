@@ -1,1 +1,6 @@
 Allows the API to respond with xml instead of json if the request allows it
+
+[api]
+# xml: boolean
+# whether or not to allow xml responses
+xml=True

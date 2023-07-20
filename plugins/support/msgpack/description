@@ -1,1 +1,6 @@
 Allows the API to respond with msgpack instead of json if the request allows it
+
+[api]
+# msgpack: boolean
+# whether or not to allow msgpack responses
+msgpack=True

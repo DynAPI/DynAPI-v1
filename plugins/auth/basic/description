@@ -1,5 +1,7 @@
 Include simple authentication via [auth] section in api.conf
 
 [auth]
+# username and password: string, string
+# used to authenticate the requests
 username=...
 password=...
