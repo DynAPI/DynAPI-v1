@@ -23,9 +23,9 @@ def make_schema(
         *,
         tags: t.List[str] = None,
         summary: str = None,
-        query: t.Dict[str, dict] = None,
-        body: t.Dict[str, dict] = None,
         path: t.Dict[str, dict] = None,
+        query: t.Dict[str, dict] = None,
+        body: __Schema = None,
         responses: t.Dict[int, __Schema] = None,
         add_default_responses: bool = True
 ):
@@ -41,15 +41,21 @@ def make_schema(
             **responses
         }
 
-    return {
-        'tags': tags or [],
-        'summary': summary,
-        'parameters': [
-            *[{'in': "query", 'name': name, **q, 'schema': resolve(q['schema'])} for name, q in (query or {}).items()],
-            *[{'in': "body", 'name': name, **q, 'schema': resolve(q['schema'])} for name, q in (body or {}).items()],
+    return dict(
+        tags=tags or [],
+        summary=summary,
+        parameters=[
             *[{'in': "path", 'name': name, **q, 'schema': resolve(q['schema'])} for name, q in (path or {}).items()],
+            *[{'in': "query", 'name': name, **q, 'schema': resolve(q['schema'])} for name, q in (query or {}).items()],
         ],
-        'responses': {
+        requestBody=dict(
+            content={
+                'application/json': {
+                    'schema': resolve(body)
+                },
+            }
+        ),
+        responses={
             str(status): {
                 'description': status_to_text(status),
                 'content': {
@@ -60,7 +66,7 @@ def make_schema(
             }
             for status, schema in responses.items()
         }
-    }
+    )
 
 
 def get_model_schema(cls):

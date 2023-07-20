@@ -4,6 +4,7 @@ r"""
 
 """
 import abc
+import typing as t
 
 
 class __Schema:
@@ -12,20 +13,30 @@ class __Schema:
     def __init__(self):
         self._options = {}
 
+    def __getitem__(self, item):
+        return self._options[item]
+
+    def __setitem__(self, key, value):
+        self._options[key] = value
+
+    def description(self, default) -> '__Schema':
+        self["description"] = default
+        return self
+
     def default(self, default) -> '__Schema':
-        self._options["default"] = default
+        self["default"] = default
         return self
 
     def enum(self, enum: list) -> '__Schema':
-        self._options["enum"] = enum
+        self["enum"] = enum
         return self
 
     def nullable(self, is_: bool = True) -> '__Schema':
-        self._options['nullable'] = is_
+        self['nullable'] = is_
         return self
 
-    def example(self, example: str) -> '__Schema':
-        self._options['example'] = example
+    def example(self, example: t.Union[str, t.List[str]]) -> '__Schema':
+        self['example'] = example
         return self
 
     # @t.final
@@ -54,12 +65,43 @@ class __Schema:
         return _type.finalize()
 
 
+class AnyType(__Schema):
+    def _finalize(self) -> dict:
+        return {
+            'AnyValue': '{}',
+        }
+
+
 class Object(__Schema):
     def __init__(self, _props=None, **properties):
         super().__init__()
         self._properties = _props or properties
 
+    def required(self, *props):
+        self["required"] = props
+        return self
+
+    def minProperties(self, value: int):
+        self["minProperties"] = value
+        return self
+
+    def maxProperties(self, value: int):
+        self["maxProperties"] = value
+        return self
+
+    def popProperties(self, *props: t.List[str]) -> 'Object':
+        if len(props) == 1 and isinstance(props[0], (list, tuple)):
+            props = props[0]
+        return Object({
+            prop: value
+            for prop, value in self._properties.items()
+            if prop not in props
+        })
+
     def _finalize(self) -> dict:
+        if not self._properties:
+            return {'type': "object"}
+
         return {
             'type': "object",
             'properties': {
@@ -68,21 +110,72 @@ class Object(__Schema):
             }
         }
 
+    def debugPrint(self):
+        print(self._properties)
+        print(self.finalize())
+        return self
+
 
 class Array(__Schema):
     # yes. type of items is not iterable
-    def __init__(self, items):
+    def __init__(self, *items):
         super().__init__()
         self._items = items
+
+    def size(self, value: int):
+        self["minItems"] = value
+        self["maxItems"] = value
+        return self
+
+    def minSize(self, value: int):
+        self["minItems"] = value
+        return self
+
+    def maxSize(self, value: int):
+        self["maxItems"] = value
+        return self
+
+    def uniqueItems(self, is_: bool = True):
+        self["uniqueItems"] = is_
+        return self
+
+    def _resolved_items(self):
+        if not self._items:
+            return '{}'  # 'items: {}' is a wildcard
+        if len(self._items) == 1:
+            return self._resolve_type(self._items[0])
+        return dict(
+            anyOf=[self._resolve_type(item) for item in self._items]
+        )
 
     def _finalize(self) -> dict:
         return {
             'type': "array",
-            'items': self._resolve_type(self._items)
+            'items': self._resolved_items()
         }
 
 
 class Integer(__Schema):
+    def ge(self, value: int):
+        self["minimum"] = value
+        self["exclusiveMinimum"] = False
+        return self
+
+    def gt(self, value: int):
+        self["minimum"] = value
+        self["exclusiveMinimum"] = True
+        return self
+
+    def le(self, value: int):
+        self["maximum"] = value
+        self["exclusiveMaximum"] = False
+        return self
+
+    def lt(self, value: int):
+        self["maximum"] = value
+        self["exclusiveMaximum"] = True
+        return self
+
     def _finalize(self) -> dict:
         return {
             'type': "integer",
@@ -90,6 +183,26 @@ class Integer(__Schema):
 
 
 class Number(__Schema):
+    def ge(self, value: float):
+        self["minimum"] = value
+        self["exclusiveMinimum"] = False
+        return self
+
+    def gt(self, value: float):
+        self["minimum"] = value
+        self["exclusiveMinimum"] = True
+        return self
+
+    def le(self, value: float):
+        self["maximum"] = value
+        self["exclusiveMaximum"] = False
+        return self
+
+    def lt(self, value: float):
+        self["maximum"] = value
+        self["exclusiveMaximum"] = True
+        return self
+
     def _finalize(self) -> dict:
         return {
             'type': "number",
@@ -97,7 +210,23 @@ class Number(__Schema):
 
 
 class String(__Schema):
-    def finalize(self) -> dict:
+    def minLength(self, value: int):
+        self["minLength"] = value
+        return self
+
+    def maxLength(self, value: int):
+        self["maxLength"] = value
+        return self
+
+    def format(self, fmt: str):
+        self["format"] = fmt
+        return self
+
+    def pattern(self, pattern: str):
+        self["pattern"] = pattern
+        return self
+
+    def _finalize(self) -> dict:
         return {
             'type': "string",
         }

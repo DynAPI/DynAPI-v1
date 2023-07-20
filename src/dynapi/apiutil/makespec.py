@@ -9,6 +9,14 @@ from . import schematypes as s
 from database import POSTGRES2OPENAPI
 
 
+METHOD2POP = {
+    "get": ["obj"],
+    "post": ["columns", "filters", "limit", "offset", "resolve_depth"],
+    "delete": ["columns", "obj", "resolve_depth"],
+    "put": ["resolve_depth"],
+}
+
+
 def makespec(method: str, schemaname: str, tablename: str, columns):
     return {
         f'/api/db/{schemaname}/{tablename}': {
@@ -16,28 +24,33 @@ def makespec(method: str, schemaname: str, tablename: str, columns):
                 tags=[f"{format_name(schemaname)}/{format_name(tablename)}", method.upper()],
                 summary=format_name(tablename),
                 query={
-                    **{
+                    col_name: dict(
+                        description=format_name(col_name),
+                        schema=POSTGRES2OPENAPI.get(column.data_type, {})
+                    )
+                    for col_name, column in columns.items()
+                },
+                body=s.Object(
+                    limit=s.Integer(),
+                    offset=s.Integer(),
+                    resolve_depth=s.Integer(),
+                    columns=s.Array(s.String()),
+                    filters=s.Array(
+                        s.Array(
+                            s.Array(
+                                # s.String(), s.Number(), s.Boolean()
+                            ).example(["key", "op", 'value']).size(3),
+                        ),
+                    ),
+                    obj=s.Object({
                         col_name: dict(
                             description=format_name(col_name),
-                            schema=POSTGRES2OPENAPI.get(column.data_type, {})
+                            **POSTGRES2OPENAPI.get(column.data_type, {})
                         )
                         for col_name, column in columns.items()
-                    },
-                    **dict(
-                        __limit__=dict(
-                            description="Maximum number of rows returned",
-                            schema=s.Integer(),
-                        ),
-                        __offset__=dict(
-                            description="Number of rows to skip",
-                            schema=s.Integer()
-                        ),
-                        __resolve_depth__=dict(
-                            description="How deep to follow foreign keys and display the relation hierarchically",
-                            schema=s.Integer(),
-                        )
-                    )
-                },
+                    }),
+                    affected=s.Integer(),
+                ).popProperties(*METHOD2POP.get(method, [])),
                 responses={
                     200: s.Object({
                         col_name: POSTGRES2OPENAPI.get(column.data_type, {})
