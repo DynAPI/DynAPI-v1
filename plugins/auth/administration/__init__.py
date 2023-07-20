@@ -31,7 +31,6 @@ def favicon():
     )
 
 
-from .create import api_key  # noqa
-from .create import user  # noqa
+from . import crud  # noqa
 
 app.register_blueprint(admin)
