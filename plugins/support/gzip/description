@@ -1,0 +1,15 @@
+Allows the API to respond with xml instead of json if the request allows it
+
+[api]
+# gzip: boolean
+# whether or not to gzip content
+gzip=True
+# gzip-on: ,-seperated strings
+# which mimetypes to gzip
+# allowed values: type/subtype, type/*, */subtype
+# default: text/html,text/css,application/javascript,text/xml,application/json
+gzip-on=text/html,text/css,application/javascript,text/xml,application/json
+# gzip-after: integer
+# after which response-size (in bytes) to gzip
+# default: 500
+gzip-after: 500
