@@ -1,38 +1,28 @@
 [api]
-# host:
+# host: string
 # where to host
 # recommended: 0.0.0.0, 127.0.0.1, localhost
 host=0.0.0.0
 
-# port:
+# port: integer
 # which port to serve on
 # recommended: 3000, 5000, 5050, 8000, 8080
 port=8080
 
-# debug:
+# debug: boolean
 # changes if server auto reloads, if debug tracebacks are shown in the browser and more
 debug=False
 
-# threaded:
+# threaded: boolean
 # changes if threading is activated or not (chose between threading or processes, dont activate both)
 threaded=True
 
-# processes:
+# processes: integer
 # changes how many processes run DynAPI (chose between threading or processes, dont activate both)
 processes=1
 
-# msgpack:
-# whether or not to allow msgpack as responses
-# msgpack must be installed (pip3 install msgpack)
-;msgpack=True
-
 [auth]
-# username and password:
-# used to authenticate the requests
-; username=
-; password=
-
-# ratelimit:
+# ratelimit: string
 # limit the number of requests
 # format= {count}/{interval} (eg. 5/min, 100/3h)
 # interval units: s(econds), m(inutes), h(ours), d(ays)
@@ -41,44 +31,44 @@ processes=1
 
 
 [web]
-# redoc:
+# redoc: boolean
 # whether or not to provide the /redoc for documentation
 redoc=True
 
-# swagger:
+# swagger: boolean
 # whether or not to provide the /swagger for documentation
 swagger=True
 
-# docs:
+# docs: boolean
 # whether or not to provide the /docs for (read-the-docs) documentation
 docs=True
 
 [database]
-# host:
+# host: string
 # Host or IPv4 address of the database to connect to.
 # Optional parameter.
 # Default: localhost
 ;host=
 
-# port:
+# port: integer
 # Port of the database to connect to.
 # Optional parameter.
 # Default: 5432
 ;port=
 
-# user:
+# user: string
 # User of the database to connect to.
 user=
 
-# password:
+# password: string
 # Password of user with the database to connect to.
 password=
 
-# database:
+# database: string
 # Database/Schema of the database to connect to.
 database=
 
-# connect_timeout:
+# connect_timeout: float
 # Connect Timeout (in seconds)
 # Optional Parameter
 # Default: 5
@@ -86,22 +76,27 @@ database=
 
 # bools for allowing / disallowing CRUD methods
 [methods]
-# get:
+# get: boolean
 # select/query entities
 get=
 
-# post:
+# post: boolean
 # create new entities
 post=
 
-# delete:
+# delete: boolean
 # delete entities
 delete=
 
-# put:
+# put: boolean
 # update single entities
 put=
 
-# patch:
+# patch: boolean
 # update multiple entities
 patch=
+
+# it's also possible to override methods for specific schemas or tables
+;[methods:schema:table]
+;[methods:schema:_*]
+;[methods:*:_*]
