@@ -36,7 +36,9 @@ def get(schemaname: str, tablename: str):
             )
 
         if body.limit:
-            query = query.limit(body.limit).offset(body.offset)
+            query = query.limit(body.limit)
+        if body.offset:
+            query = query.offset(body.offset)
 
         cursor.execute(str(query))
         return flask.jsonify([

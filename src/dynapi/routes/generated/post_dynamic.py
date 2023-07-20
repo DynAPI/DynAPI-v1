@@ -17,8 +17,7 @@ def post(schemaname: str, tablename: str):
     flask_method_check()
     body = get_body_config(request)
     with DatabaseConnection() as conn:
-        from psycopg2.extras import NamedTupleCursor
-        cursor = conn.cursor(cursor_factory=NamedTupleCursor)
+        cursor = conn.cursor()
         schema = Schema(schemaname)
         table = Table(tablename)
         query = Query.into(schema.__getattr__(tablename)) \
