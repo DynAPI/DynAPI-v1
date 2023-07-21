@@ -13,6 +13,6 @@ if not config.getboolean("web", "redoc", fallback=False):
     raise DoNotImportException()
 
 
-@app.route("/redoc")
+@app.route("/redoc", methods=["GET"])
 def redoc():
     return flask.render_template("redoc.html")

@@ -40,33 +40,45 @@ def openapi():
                         paths[path].update(path_spec)
         return dict(
             openapi="3.0.0",
-            info=dict(
-                title="DynAPI",
-                version=__version__,
+            info={
+                'title': "DynAPI",
+                'version': __version__,
                 # summary=summary,
-                description=textwrap.dedent(fr"""
+                'description': textwrap.dedent(fr"""
                 Last-Update: {datetime.datetime.now():%Y-%m-%d %H:%M}
-                
-                See the [documentation](/docs) or go [Home](/)
                 """),
+                'x-logo': dict(
+                    url="/static/assets/DynAPI.svg",
+                )
+            },
+            tags=[
+                dict(
+                    name="Meta",
+                    description="Meta Information",
+                ),
+            ],
+            externalDocs=dict(
+                url="https://dynapi-docs.readthedocs.io/en/latest/",
+                description="Read the DynAPI-Docs"
             ),
             paths=paths,
         )
     except Exception as exc:
         return dict(
             openapi="3.0.0",
-            info=dict(
-                title="DynAPI",
-                version=__version__,
+            info={
+                'title': "DynAPI",
+                'version': __version__,
                 # summary=summary,
-                description=textwrap.dedent(fr"""
+                'description': textwrap.dedent(fr"""
                 Last-Update: {datetime.datetime.now():%Y-%m-%d %H:%M}
-                
-                See the [documentation](/docs) or go [Home](/)
                 
                 # Failed to load openapi-specification
                 **Type:** {type(exc).__name__}  
                 **Detail:** {exc}
                 """),
-            )
+                'x-logo': dict(
+                    url="/static/assets/DynAPI.svg",
+                )
+            },
         )

@@ -13,6 +13,6 @@ if not config.getboolean("web", "swagger", fallback=False):
     raise DoNotImportException()
 
 
-@app.route("/swagger")
+@app.route("/swagger", methods=["GET"])
 def swagger():
     return flask.render_template("swagger.html")
