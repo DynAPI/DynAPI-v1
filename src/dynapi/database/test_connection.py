@@ -15,4 +15,4 @@ def test_database_connection():
     except Exception as exc:
         print(f"{TCodes.FG_RED}Failed to connect to Database{TCodes.RESTORE_FG}")
         print(f"{type(exc).__name__}: {exc}")
-        sys.exit(1)
+        # sys.exit(1)

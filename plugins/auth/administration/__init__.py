@@ -10,7 +10,6 @@ import os.path as p
 import flask
 
 
-dirpath = p.dirname(__file__)
 admin = flask.Blueprint("administration", __name__,
                         static_folder='web/static/',
                         template_folder='web/',

@@ -14,6 +14,7 @@ cp README.md "build/dynapi/"
 # cleanup of copied
 find build/dynapi -type d -iname __pycache__ -prune -exec rm -rf "{}" \;
 [ -f "build/dynapi/api.conf" ] && rm "build/dynapi/api.conf"
+mkdir -p "build/dynapi/plugins/"
 
 # install dependencies into (new) copied source-code directory
 echo "Installing dependencies..."
