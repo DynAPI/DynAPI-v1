@@ -26,7 +26,7 @@ class Status:
     database: Database
 
 
-@app.route("/api/status")
+@app.route("/api/status", methods=["GET"])
 def status():
     try:
         with DatabaseConnection():

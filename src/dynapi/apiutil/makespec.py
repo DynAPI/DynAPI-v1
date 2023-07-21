@@ -21,7 +21,7 @@ def makespec(method: str, schemaname: str, tablename: str, columns):
     return {
         f'/api/db/{schemaname}/{tablename}': {
             f'{method}': make_schema(
-                tags=[f"{format_name(schemaname)}/{format_name(tablename)}", method.upper()],
+                tags=[f"{format_name(schemaname)}/{format_name(tablename)}"],
                 summary=format_name(tablename),
                 query={
                     col_name: dict(
