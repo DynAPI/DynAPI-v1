@@ -1,0 +1,58 @@
+{"0": {
+    "doc": "Plugin-System",
+    "title": "Plugin-System",
+    "content": " ",
+    "url": "/docs/plugin-system/",
+    
+    "relUrl": "/plugin-system/"
+  },"1": {
+    "doc": "Configuration",
+    "title": "Configuration",
+    "content": " ",
+    "url": "/docs/configuration/",
+    
+    "relUrl": "/configuration/"
+  },"2": {
+    "doc": "Getting Started",
+    "title": "Getting Started",
+    "content": " ",
+    "url": "/docs/getting-started/",
+    
+    "relUrl": "/getting-started/"
+  },"3": {
+    "doc": "Plugins",
+    "title": "Plugins",
+    "content": " ",
+    "url": "/docs/plugins/",
+    
+    "relUrl": "/plugins/"
+  },"4": {
+    "doc": "What is DynAPI",
+    "title": "What is DynAPI",
+    "content": "DynAPI is a completely dynamic Rest-API for PostgreSQL Databases. It offers realtime-adjusted endpoints and a generated documentation with Redoc and Swagger . It offers great customization over the configuration file, the plugin system or the pre-build plugins . ",
+    "url": "/docs/what-is-dynapi/",
+    
+    "relUrl": "/what-is-dynapi/"
+  },"5": {
+    "doc": "Home",
+    "title": " DynAPI",
+    "content": "Dynamic API for (postgresql) Databases . Getting Started . ",
+    "url": "/docs/#-dynapi",
+    
+    "relUrl": "/#-dynapi"
+  },"6": {
+    "doc": "Home",
+    "title": "Home",
+    "content": "Please don’t install/use this tool yet. It’s not developed/tested enough. Use at own risk . ",
+    "url": "/docs/",
+    
+    "relUrl": "/"
+  },"7": {
+    "doc": "Problems",
+    "title": "Problems",
+    "content": " ",
+    "url": "/docs/getting-started/problems/",
+    
+    "relUrl": "/getting-started/problems/"
+  }
+}
