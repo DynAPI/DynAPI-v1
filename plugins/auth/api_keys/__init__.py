@@ -10,6 +10,7 @@ from flask import g
 from apiconfig import config
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from database import DatabaseConnection, dbutil
+from . import permissions_check
 
 
 schemaname = config.get('auth', 'schema', fallback="dynapi")
@@ -25,8 +26,6 @@ def verify_authorization():
     if not api_key:
         raise flask.abort(http.HTTPStatus.UNAUTHORIZED)
     g.user = api_key
-    # dynapi.api_keys
-    # {api_key: string[, roles]}
 
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
