@@ -25,7 +25,6 @@ queue = NewQueue()
 
 @app.after_request
 def logging(response: flask.Response) -> flask.Response:
-    print([flask.request.path, flask.request.path.startswith(("/api", "/admin"))])
     if flask.request.path.startswith(("/api", "/admin")):
         try:
             log: t.Dict[str, t.Any] = {}
