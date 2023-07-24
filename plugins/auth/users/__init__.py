@@ -29,7 +29,7 @@ def verify_authorization():
     password = authorization.password
     if not username and not password:
         raise flask.abort(http.HTTPStatus.UNAUTHORIZED)
-    g.user=username
+    g.user = username
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
         table = Table(tablename)

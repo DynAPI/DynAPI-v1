@@ -21,6 +21,7 @@ gzip_after = config.getint("api", "gzip-after", fallback=500)
 
 def gzip_compression(response: flask.Response) -> flask.Response:
     if (
+        response.direct_passthrough or
         not (200 <= response.status_code < 300) or  # bad response-code
         'gzip' not in flask.request.accept_encodings or  # gzip not allowed from client
         response.content_length is not None and response.content_length < gzip_after or  # content too small
