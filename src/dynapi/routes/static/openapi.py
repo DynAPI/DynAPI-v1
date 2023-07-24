@@ -18,7 +18,7 @@ if not config.getboolean("web", "redoc", fallback=False) and not config.getboole
     raise DoNotImportException()
 
 
-@app.route("/openapi")
+@app.get("/openapi")
 # @minicache(max_age=30)
 def openapi():
     try:
@@ -53,6 +53,10 @@ def openapi():
             },
             tags=[
                 dict(
+                    name="Stats",
+                    description="Status Information",
+                ),
+                dict(
                     name="Meta",
                     description="Meta Information",
                 ),
@@ -64,21 +68,25 @@ def openapi():
             paths=paths,
         )
     except Exception as exc:
-        return dict(
-            openapi="3.0.0",
-            info={
-                'title': "DynAPI",
-                'version': __version__,
-                # summary=summary,
-                'description': textwrap.dedent(fr"""
-                Last-Update: {datetime.datetime.now():%Y-%m-%d %H:%M}
-                
-                # Failed to load openapi-specification
-                **Type:** {type(exc).__name__}  
-                **Detail:** {exc}
-                """),
-                'x-logo': dict(
-                    url="/static/assets/DynAPI.svg",
-                )
-            },
-        )
+        return openapi_error_fallback(exception=exc)
+
+
+def openapi_error_fallback(exception: Exception):
+    return dict(
+        openapi="3.0.0",
+        info={
+            'title': "DynAPI",
+            'version': __version__,
+            # summary=summary,
+            'description': textwrap.dedent(fr"""
+            Last-Update: {datetime.datetime.now():%Y-%m-%d %H:%M}
+            
+            # Failed to load openapi-specification
+            **Type:** {type(exception).__name__}  
+            **Detail:** {exception}
+            """),
+            'x-logo': dict(
+                url="/static/assets/DynAPI.svg",
+            )
+        },
+    )

@@ -8,13 +8,13 @@ import flask
 from flask import request, g
 from pypika import PostgreSQLQuery as Query, Schema, Table
 from database import DatabaseConnection, dbutil
-from apiconfig import flask_method_check, method_check
+import apiconfig
 from apiutil import makespec, get_body_config
 
 
 @app.route("/api/db/<string:schemaname>/<string:tablename>", methods=["POST"])
 def post(schemaname: str, tablename: str):
-    flask_method_check()
+    apiconfig.flask_method_check()
     body = get_body_config(request)
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
@@ -37,7 +37,7 @@ def post(schemaname: str, tablename: str):
 def get_openapi_spec(connection: DatabaseConnection, tables_meta):
     spec = {}
     for table in dbutil.list_tables(connection=connection):
-        if method_check(method="post", schema=table.schema, table=table.table):
+        if apiconfig.method_check(method="post", schema=table.schema, table=table.table):
             spec.update(
                 makespec(method="post", schemaname=table.schema, tablename=table.table,
                          columns=tables_meta[table.schema][table.table])

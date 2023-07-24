@@ -8,7 +8,7 @@ import flask
 from apiconfig import config
 
 
-@app.route("/", methods=["GET"])
+@app.get("/")
 def index():
     return flask.render_template(
         "home.html",
@@ -19,7 +19,7 @@ def index():
     )
 
 
-@app.route("/favicon.ico", methods=["GET"])
+@app.get("/favicon.ico")
 def favicon():
     return flask.redirect(
         flask.url_for("static", filename="favicon.ico")

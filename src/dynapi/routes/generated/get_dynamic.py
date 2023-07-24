@@ -8,13 +8,13 @@ import flask
 from flask import request, g
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from database import DatabaseConnection, dbutil
-from apiconfig import flask_method_check, method_check
+import apiconfig
 from apiutil import makespec, format_name, get_body_config, make_schema, schematypes as s
 
 
 @app.route("/api/db/<string:schemaname>/<string:tablename>", methods=["GET"])
 def get(schemaname: str, tablename: str):
-    flask_method_check()
+    apiconfig.flask_method_check()
     body = get_body_config(request)
     with DatabaseConnection() as conn:
         cursor = conn.cursor()
@@ -57,7 +57,7 @@ def countItems(schema: str, table: str):
 def get_openapi_spec(connection: DatabaseConnection, tables_meta):
     spec = {}
     for table in dbutil.list_tables(connection=connection):
-        if method_check(method="get", schema=table.schema, table=table.table):
+        if apiconfig.method_check(method="get", schema=table.schema, table=table.table):
             spec.update(
                 makespec(method="get", schemaname=table.schema, tablename=table.table,
                          columns=tables_meta[table.schema][table.table])
