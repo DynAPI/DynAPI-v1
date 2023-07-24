@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -e
-
 cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
 
 if [[ "$UNSAFE" = "true" ]]; then
