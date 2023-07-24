@@ -38,7 +38,7 @@ def verify_authorization():
         row = cursor.fetchone()
         if not row:
             raise flask.abort(http.HTTPStatus.UNAUTHORIZED)
-
+        g.roles = row.roles
     # schemaname = flask.request.view_args["schemaname"]
     # tablename = flask.request.view_args["tablename"]
 

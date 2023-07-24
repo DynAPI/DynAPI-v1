@@ -9,7 +9,7 @@ from database import DatabaseConnection, dbutil
 from apiutil import make_schema, schematypes as s
 
 
-@app.route("/api/meta/list-tables")
+@app.route("/api/{schemaname}/list-tables", methods=["OPTIONS"])
 def list_tables():
     with DatabaseConnection() as conn:
         return flask.jsonify(dbutil.list_tables(connection=conn))
@@ -17,8 +17,8 @@ def list_tables():
 
 def get_openapi_spec(_, __):
     return {
-        '/api/meta/list-tables': {
-            'get': make_schema(
+        '/api/list-tables': {
+            'options': make_schema(
                 tags=["Meta"],
                 summary="Gets Schema and Table-names",
                 responses={

@@ -34,13 +34,14 @@ def create_user():
     except (TypeError, ValueError):
         raise flask.abort(http.HTTPStatus.BAD_REQUEST)
     else:
+        roles = [role.lower() for role in body.roles]
         passwordhash = base64.b64encode(generate_password_hash(body.password.encode())).decode()
         with DatabaseConnection() as conn:
             cursor = conn.cursor()
             schema = Schema(schemaname)
             query = Query.into(schema.__getattr__(tablename)) \
                 .columns("username", "passwordhash", "description", "roles") \
-                .insert(body.username, passwordhash, body.description, body.roles) \
+                .insert(body.username, passwordhash, body.description, roles) \
                 .returning("*")
             cursor.execute(str(query))
             row = cursor.fetchone()

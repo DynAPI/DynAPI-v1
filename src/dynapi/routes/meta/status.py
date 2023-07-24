@@ -57,7 +57,7 @@ def get_openapi_spec(_, __):
     return {
         '/api/status': {
             'get': make_schema(
-                tags=["Meta"],
+                tags=["Stats"],
                 summary="Check status of API and Database",
                 responses={
                     200: s.Object(

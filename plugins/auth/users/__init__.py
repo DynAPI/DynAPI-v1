@@ -12,6 +12,7 @@ from apiconfig import config
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from database import DatabaseConnection
 from .pwutil import compare_password_to_hash
+from . import permissions_check
 
 
 schemaname = config.get('auth', 'schema') if config.has_option('auth', 'schema') else 'dynapi'
@@ -41,6 +42,7 @@ def verify_authorization():
         row = cursor.fetchone()
         if not row:
             raise flask.abort(http.HTTPStatus.UNAUTHORIZED)
+        g.roles = row.roles
         if not compare_password_to_hash(password.encode(), base64.b64decode(row.passwordhash.encode())):
             raise flask.abort(http.HTTPStatus.UNAUTHORIZED)
 

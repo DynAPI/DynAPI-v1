@@ -12,7 +12,7 @@ import apiconfig
 from apiutil import get_body_config, makespec
 
 
-@app.route("/api/db/<string:schemaname>/<string:tablename>", methods=["DELETE"])
+@app.delete("/api/<string:schemaname>/<string:tablename>")
 def delete(schemaname: str, tablename: str):
     apiconfig.flask_method_check()
     body = get_body_config(request)

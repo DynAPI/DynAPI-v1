@@ -12,7 +12,7 @@ import apiconfig
 from apiutil import makespec, get_body_config
 
 
-@app.route("/api/db/<string:schemaname>/<string:tablename>", methods=["PUT"])
+@app.put("/api/<string:schemaname>/<string:tablename>")
 def put(schemaname: str, tablename: str):
     apiconfig.flask_method_check()
     body = get_body_config(request)

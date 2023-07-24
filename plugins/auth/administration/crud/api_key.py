@@ -37,12 +37,13 @@ def create_api_key():
     except (TypeError, ValueError):
         raise flask.abort(http.HTTPStatus.BAD_REQUEST)
     else:
+        roles = [role.lower() for role in body.roles]
         with DatabaseConnection() as conn:
             cursor = conn.cursor()
             schema = Schema(schemaname)
             query = Query.into(schema.__getattr__(tablename)) \
                 .columns("api_key", "description", "roles") \
-                .insert(body.api_key or secrets.token_hex(), body.description, body.roles) \
+                .insert(body.api_key or secrets.token_hex(), body.description, roles) \
                 .returning("*")
             cursor.execute(str(query))
             row = cursor.fetchone()

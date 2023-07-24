@@ -12,7 +12,7 @@ import apiconfig
 from apiutil import makespec, format_name, get_body_config, make_schema, schematypes as s
 
 
-@app.route("/api/db/<string:schemaname>/<string:tablename>", methods=["GET"])
+@app.get("/api/<string:schemaname>/<string:tablename>")
 def get(schemaname: str, tablename: str):
     apiconfig.flask_method_check()
     body = get_body_config(request)

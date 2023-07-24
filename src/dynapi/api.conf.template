@@ -65,7 +65,7 @@ user=
 password=
 
 # database: string
-# Database/Schema of the database to connect to.
+# Database name of the database to connect to.
 database=
 
 # connect_timeout: float
