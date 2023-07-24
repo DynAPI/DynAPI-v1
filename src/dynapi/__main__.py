@@ -6,9 +6,9 @@ r"""
 __version__ = "0.0.0"
 
 import flask
+import atexit
 import os.path as p
 from apiconfig import config
-from database import test_database_connection
 import dynamic_loader
 
 
@@ -17,6 +17,9 @@ app = flask.Flask(
     static_folder="web/static/",
     template_folder="web/",
 )
+app.alive = True
+atexit.register(lambda: setattr(app, 'alive', False))
+
 
 ROUTES = []
 PLUGINS = {}
@@ -27,7 +30,7 @@ if p.isdir("plugins"):
 
 
 if __name__ == '__main__':
-    test_database_connection()
+    # test_database_connection()
     app.run(
         host=config.get("api", "host", fallback="localhost"),
         port=config.getint("api", "port", fallback=8080),
