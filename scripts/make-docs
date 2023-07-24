@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+cd "$(realpath "$(dirname "$(realpath "$0")")/../docs/")"
+
+bundle exec jekyll build --source . --destination ../src/dynapi/web/static/docs/
