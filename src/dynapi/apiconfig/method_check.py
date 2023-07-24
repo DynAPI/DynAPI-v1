@@ -35,7 +35,7 @@ class ParsedSection:
         self.raw = section
         parts = section.split(":")
         self.section = parts[0]
-        if self.section != 'methods':
+        if self.section != 'methods' or len(parts) > 3:
             raise KeyError(f"invalid section: {self.section!r}")
         self.schema = (parts[1] if len(parts) > 1 else None) or "*"
         self.schema_re = re.compile(translate_globby(self.schema), re.IGNORECASE) if self.schema else None
@@ -64,10 +64,13 @@ class ParsedSection:
 
 @functools.lru_cache()
 def ordered_sections():
-    return sorted(
-        (ParsedSection(sec) for sec in config.sections() if sec == 'methods' or sec.startswith('methods:')),
-        reverse=True
-    )
+    parsed = []
+    for section in config.sections():
+        try:
+            parsed.append(ParsedSection(section))
+        except KeyError:
+            pass
+    return sorted(parsed, reverse=True)
 
 
 @functools.lru_cache()
@@ -88,4 +91,5 @@ def flask_method_check():
     table = flask.request.view_args["tablename"]
     if not method_check(method=method, schema=schema, table=table):
         # flask.abort(http.HTTPStatus.FORBIDDEN)
-        flask.abort(http.HTTPStatus.METHOD_NOT_ALLOWED)
+        raise flask.abort(http.HTTPStatus.METHOD_NOT_ALLOWED)
+    flask.g.method_checked = True
