@@ -12,8 +12,7 @@ from apiutil import make_schema, schematypes as s
 
 @app.route("/api/list-tables-meta", methods=["OPTIONS"])
 def list_tables_meta():
-    with DatabaseConnection() as connection:
-        meta_data = dbutil.list_tables_meta(connection=connection)
+    meta_data = dbutil.list_tables_meta()
 
     response_format = request.args.get('format', 'short')
     if response_format == "short":
@@ -45,7 +44,7 @@ def transform_format_short2long(short):
     ]
 
 
-def get_openapi_spec(_, __):
+def get_openapi_spec(_):
     return {
         '/api/list-tables-meta': {
             'options': make_schema(

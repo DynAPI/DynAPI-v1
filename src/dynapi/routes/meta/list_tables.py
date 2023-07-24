@@ -11,8 +11,7 @@ from apiutil import make_schema, schematypes as s
 
 @app.route("/api/{schemaname}/list-tables", methods=["OPTIONS"])
 def list_tables():
-    with DatabaseConnection() as conn:
-        return flask.jsonify(dbutil.list_tables(connection=conn))
+    return flask.jsonify(dbutil.list_tables())
 
 
 def get_openapi_spec(_, __):

@@ -11,10 +11,9 @@ from apiutil import make_schema, schematypes as s
 
 @app.route("/api/<string:schema>/<string:table>/list-constraints", methods=["OPTIONS"])
 def getConstraints(schema: str, table: str):
-    with DatabaseConnection() as conn:
-        return flask.jsonify(
-            dbutil.get_constraints(connection=conn, schema=schema, table=table)
-        )
+    return flask.jsonify(
+        dbutil.get_constraints(schema=schema, table=table)
+    )
 
 
 def get_openapi_spec(_, __):

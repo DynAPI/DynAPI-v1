@@ -12,15 +12,14 @@ from apiutil import make_schema, schematypes as s
 
 @app.route("/api/<string:schemaname>/<string:tablename>/list-columns", methods=["OPTIONS"])
 def columns(schemaname: str, tablename: str):
-    with DatabaseConnection() as connection:
-        cols = dbutil.list_columns(connection=connection, schema=schemaname, table=tablename)
-        return flask.jsonify({
-            col.name: POSTGRES2OPENAPI.get(col.data_type)['type']
-            for col in cols
-        })
+    cols = dbutil.list_columns(schema=schemaname, table=tablename)
+    return flask.jsonify({
+        col.name: POSTGRES2OPENAPI.get(col.data_type)['type']
+        for col in cols
+    })
 
 
-def get_openapi_spec(_, __):
+def get_openapi_spec(_):
     return {
         '/api/{schemaname}/{tablename}/columns': {
             'options': make_schema(

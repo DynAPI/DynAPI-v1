@@ -4,11 +4,13 @@ r"""
 
 """
 import typing as t
-from .. import DatabaseConnection
+import flask
 from .types import TableMeta
 
 
-def list_tables(connection: DatabaseConnection) -> t.List[TableMeta]:
+def list_tables(connection=None) -> t.List[TableMeta]:
+    connection = connection or flask.g.db_conn
+
     cursor = connection.cursor()
     # TODO: dynamic where depending on api.conf
     cursor.execute(r"""

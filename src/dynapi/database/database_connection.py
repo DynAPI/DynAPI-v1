@@ -11,9 +11,7 @@ from apiconfig import config
 class DatabaseConnection:
     conn: psql.extras.NamedTupleConnection = None
 
-    def __enter__(self):
-        if self.conn:
-            raise RuntimeError("don't use this a second time")
+    def __init__(self):
         self.conn = psql.connect(
             database=config.get("database", "database"),
             user=config.get("database", "user"),
@@ -23,10 +21,19 @@ class DatabaseConnection:
             connect_timeout=config.getint("database", "connect_timeout", fallback=5),
             connection_factory=psql.extras.NamedTupleConnection,
         )
+
+    def __del__(self):
+        if not self.conn.closed:
+            self.conn.close()
+
+    close = __del__
+
+    def __enter__(self):
+        self.conn.__enter__()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.conn.close()
+        self.conn.__exit__(exc_type, exc_val, exc_tb)
 
     def cursor(self) -> psql.extras.NamedTupleCursor:
         return self.conn.cursor()

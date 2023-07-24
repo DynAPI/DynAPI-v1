@@ -7,7 +7,7 @@ from __main__ import app
 import flask
 from flask import request, g
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
-from database import DatabaseConnection, dbutil
+from database import dbutil
 import apiconfig
 from apiutil import makespec, format_name, get_body_config, make_schema, schematypes as s
 
@@ -50,8 +50,7 @@ def get(schemaname: str, tablename: str):
 
 @app.route("/api/db/<string:schema>/<string:table>/count", methods=["GET"])
 def countItems(schema: str, table: str):
-    with DatabaseConnection() as conn:
-        return flask.jsonify(dbutil.get_count(connection=conn, schema=schema, table=table))
+    return flask.jsonify(dbutil.get_count(schema=schema, table=table))
 
 
 def get_openapi_spec(connection: DatabaseConnection, tables_meta):

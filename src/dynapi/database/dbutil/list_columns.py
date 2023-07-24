@@ -4,11 +4,13 @@ r"""
 
 """
 import typing as t
-from .. import DatabaseConnection
+import flask
 from .types import TableColumn
 
 
-def list_columns(connection: DatabaseConnection, schema: str, table: str) -> t.List[TableColumn]:
+def list_columns(schema: str, table: str, connection=None) -> t.List[TableColumn]:
+    connection = connection or flask.g.db_conn
+
     cursor = connection.cursor()
     cursor.execute(r"""
     SELECT column_name, data_type

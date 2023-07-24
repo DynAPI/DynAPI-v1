@@ -4,11 +4,13 @@ r"""
 
 """
 from collections import defaultdict
-from .. import DatabaseConnection
+import flask
 from . import list_tables, list_columns
 
 
-def list_tables_meta(connection: DatabaseConnection):
+def list_tables_meta(connection=None):
+    connection = connection or flask.g.db_conn
+
     meta_data = defaultdict(lambda: dict())
     for table in list_tables(connection=connection):
         cols = list_columns(connection=connection, schema=table.schema, table=table.table)

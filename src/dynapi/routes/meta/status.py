@@ -53,7 +53,7 @@ def status():
     )
 
 
-def get_openapi_spec(_, __):
+def get_openapi_spec(_):
     return {
         '/api/status': {
             'get': make_schema(
