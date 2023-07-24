@@ -14,7 +14,7 @@ def list_tables():
     return flask.jsonify(dbutil.list_tables())
 
 
-def get_openapi_spec(_, __):
+def get_openapi_spec(_):
     return {
         '/api/list-tables': {
             'options': make_schema(

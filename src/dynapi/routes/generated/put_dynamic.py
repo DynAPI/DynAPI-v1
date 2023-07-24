@@ -16,7 +16,7 @@ from apiutil import makespec, get_body_config
 def put(schemaname: str, tablename: str):
     apiconfig.flask_method_check()
     body = get_body_config(request)
-    with DatabaseConnection() as conn:
+    with flask.g.db_conn as conn:
         cursor = conn.cursor()
         schema = Schema(schemaname)
         table = Table(tablename)
@@ -47,8 +47,9 @@ def put(schemaname: str, tablename: str):
         ])
 
 
-def get_openapi_spec(connection: DatabaseConnection, tables_meta):
+def get_openapi_spec(tables_meta):
     spec = {}
+    connection=flask.g.db_conn
     for table in dbutil.list_tables(connection=connection):
         if apiconfig.method_check(method="put", schema=table.schema, table=table.table):
             spec.update(

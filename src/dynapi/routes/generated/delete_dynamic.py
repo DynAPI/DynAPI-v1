@@ -16,7 +16,7 @@ from apiutil import get_body_config, makespec
 def delete(schemaname: str, tablename: str):
     apiconfig.flask_method_check()
     body = get_body_config(request)
-    with DatabaseConnection() as conn:
+    with flask.g.db_conn as conn:
         cursor = conn.cursor()
         schema = Schema(schemaname)
         table = Table(tablename)
@@ -43,7 +43,8 @@ def delete(schemaname: str, tablename: str):
         ])
 
 
-def get_openapi_spec(connection: DatabaseConnection, tables_meta):
+def get_openapi_spec(tables_meta):
+    connection = flask.g.db_conn
     spec = {}
     for table in dbutil.list_tables(connection=connection):
         if apiconfig.method_check(method="delete", schema=table.schema, table=table.table):

@@ -16,7 +16,7 @@ def getConstraints(schema: str, table: str):
     )
 
 
-def get_openapi_spec(_, __):
+def get_openapi_spec(_):
     return {
         '/api/{schemaname}/{tablename}/constraints': {
             'options': make_schema(
