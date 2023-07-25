@@ -1,3 +1,0 @@
-used orjson-package instead of the default json-module to serialize json responses
-
-this could improve performance but could also lead to compatibility issues
