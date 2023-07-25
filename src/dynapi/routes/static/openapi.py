@@ -9,8 +9,7 @@ import datetime
 import traceback
 import itertools
 from collections import defaultdict
-import flask
-from database import DatabaseConnection, dbutil
+from database import dbutil
 from exceptions import DoNotImportException
 from apiconfig import config
 

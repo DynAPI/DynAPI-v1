@@ -5,9 +5,10 @@ r"""
 """
 __version__ = "0.0.0"
 
-import flask
 import atexit
+import secrets
 import os.path as p
+import flask
 from apiconfig import config
 import dynamic_loader
 
@@ -17,13 +18,14 @@ app = flask.Flask(
     static_folder="web/static/",
     template_folder="web/",
 )
+app.secret_key = secrets.token_hex()
 app.alive = True
 atexit.register(lambda: setattr(app, 'alive', False))
 
 
 ROUTES = []
 PLUGINS = {}
-dynamic_loader.load_folder("extra")
+dynamic_loader.load_folder("extra_modules")
 ROUTES.extend(dynamic_loader.load_folder("routes"))
 if p.isdir("plugins"):
     PLUGINS.update(dynamic_loader.load_plugins())

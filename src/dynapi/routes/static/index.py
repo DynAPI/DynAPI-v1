@@ -21,6 +21,4 @@ def index():
 
 @app.get("/favicon.ico")
 def favicon():
-    return flask.redirect(
-        flask.url_for("static", filename="favicon.ico")
-    )
+    return app.send_static_file("favicon.ico")
