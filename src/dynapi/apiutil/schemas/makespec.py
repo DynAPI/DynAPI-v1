@@ -4,9 +4,9 @@ r"""
 
 """
 import re
+from database import POSTGRES2OPENAPI
 from .schema import make_schema
 from . import schematypes as s
-from database import POSTGRES2OPENAPI
 
 
 METHOD2POP = {
