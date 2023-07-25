@@ -25,7 +25,7 @@ queue = NewQueue()
 
 @app.after_request
 def logging(response: flask.Response) -> flask.Response:
-    if flask.request.path.startswith(("/api", "/admin")):
+    if "/static/" in flask.request.path:
         try:
             log: t.Dict[str, t.Any] = {}
             log["timestamp"] = datetime.now()
