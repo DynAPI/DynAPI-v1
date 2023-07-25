@@ -5,13 +5,13 @@ r"""
 """
 from __main__ import app
 import flask
-from database import DatabaseConnection, dbutil
-from apiutil import make_schema, schematypes as s
+from database import dbutil
+from apiutil import make_schema, responsify, schematypes as s
 
 
 @app.route("/api/<string:schema>/<string:table>/list-constraints", methods=["OPTIONS"])
 def getConstraints(schema: str, table: str):
-    return flask.jsonify(
+    return responsify(
         dbutil.get_constraints(schema=schema, table=table)
     )
 

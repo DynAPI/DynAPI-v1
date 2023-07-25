@@ -9,7 +9,7 @@ from flask import request, g
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from database import DatabaseConnection, dbutil
 import apiconfig
-from apiutil import makespec, get_body_config
+from apiutil import makespec, get_body_config, responsify
 
 
 @app.put("/api/<string:schemaname>/<string:tablename>")
@@ -41,10 +41,11 @@ def put(schemaname: str, tablename: str):
         cursor.execute(str(query))
         conn.commit()
         g.SQL = str(query)
-        return flask.jsonify([
-           {col.name: row[index] for index, col in enumerate(cursor.description)}
-           for row in cursor.fetchall()
-        ])
+        return responsify(cursor)
+        # return responsify([
+        #     {col.name: row[index] for index, col in enumerate(cursor.description)}
+        #     for row in cursor.fetchall()
+        # ])
 
 
 def get_openapi_spec(tables_meta):

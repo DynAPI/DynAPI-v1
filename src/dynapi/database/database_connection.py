@@ -23,7 +23,7 @@ class DatabaseConnection:
         )
 
     def __del__(self):
-        if not self.conn.closed:
+        if getattr(self, 'conn') and not self.conn.closed:
             self.conn.close()
 
     close = __del__

@@ -8,7 +8,7 @@ import typing as t
 import flask
 import psycopg2 as psql
 from database import DatabaseConnection
-from apiutil import make_schema, schematypes as s
+from apiutil import make_schema, responsify, schematypes as s
 from pydantic.dataclasses import dataclass
 
 
@@ -44,7 +44,7 @@ def status():
             problem_detail=None
         )
 
-    return flask.jsonify(
+    return responsify(
         Status(
             online=True,
             version=__version__,

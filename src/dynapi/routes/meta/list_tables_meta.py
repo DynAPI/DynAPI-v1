@@ -6,8 +6,8 @@ r"""
 import flask
 from flask import request
 from __main__ import app
-from database import DatabaseConnection, dbutil
-from apiutil import make_schema, schematypes as s
+from database import dbutil
+from apiutil import make_schema, responsify, schematypes as s
 
 
 @app.route("/api/list-tables-meta", methods=["OPTIONS"])
@@ -16,9 +16,9 @@ def list_tables_meta():
 
     response_format = request.args.get('format', 'short')
     if response_format == "short":
-        return flask.jsonify(meta_data)
+        return responsify(meta_data)
     elif response_format == "long":
-        return flask.jsonify(
+        return responsify(
             transform_format_short2long(meta_data)
         )
     else:

@@ -5,15 +5,15 @@ r"""
 """
 from __main__ import app
 import flask
-from database import DatabaseConnection, dbutil
-from apiutil.makespec import POSTGRES2OPENAPI
-from apiutil import make_schema, schematypes as s
+from database import dbutil
+from apiutil.schemas.makespec import POSTGRES2OPENAPI
+from apiutil import make_schema, responsify, schematypes as s
 
 
 @app.route("/api/<string:schemaname>/<string:tablename>/list-columns", methods=["OPTIONS"])
 def columns(schemaname: str, tablename: str):
     cols = dbutil.list_columns(schema=schemaname, table=tablename)
-    return flask.jsonify({
+    return responsify({
         col.name: POSTGRES2OPENAPI.get(col.data_type)['type']
         for col in cols
     })

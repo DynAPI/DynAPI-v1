@@ -9,7 +9,8 @@ from flask import request, g
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from database import dbutil
 import apiconfig
-from apiutil import makespec, format_name, get_body_config, make_schema, schematypes as s
+from apiutil import makespec, format_name, get_body_config, make_schema, responsify
+from apiutil.schemas import schematypes as s
 
 
 @app.get("/api/<string:schemaname>/<string:tablename>")
@@ -42,10 +43,11 @@ def get(schemaname: str, tablename: str):
 
         cursor.execute(str(query))
         g.SQL = str(query)
-        return flask.jsonify([
-            {col.name: row[index] for index, col in enumerate(cursor.description)}
-            for row in cursor.fetchall()
-        ])
+        return responsify(cursor)
+        # return responsify([
+        #     {col.name: row[index] for index, col in enumerate(cursor.description)}
+        #     for row in cursor.fetchall()
+        # ])
 
 
 @app.route("/api/db/<string:schema>/<string:table>/count", methods=["GET"])
