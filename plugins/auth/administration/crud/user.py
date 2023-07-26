@@ -120,7 +120,7 @@ def update_user():
         ])
 
 
-@admin.route("/api_key", methods=["GET"])
+@admin.route("/user", methods=["GET"])
 def get_user():
     body = get_body_config(request)
     with DatabaseConnection() as conn:
