@@ -16,17 +16,15 @@ admin = flask.Blueprint("administration", __name__,
                         url_prefix="/admin")
 
 
-@admin.route("/", methods=["GET"])
+@admin.get("/")
 def index():
+    return flask.render_template("index.html")
+
+
+@admin.get("/<path:path>")
+def page(path: str):
     return flask.render_template(
-        "index.html",
-    )
-
-
-@admin.route("/favicon.ico", methods=["GET"])
-def favicon():
-    return flask.redirect(
-        flask.url_for("static", filename="favicon.ico")
+        [path, p.join(path, 'index.html')],
     )
 
 

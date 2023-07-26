@@ -119,6 +119,7 @@ def update_user():
             for row in cursor.fetchall()
         ])
 
+
 @admin.route("/api_key", methods=["GET"])
 def get_user():
     body = get_body_config(request)

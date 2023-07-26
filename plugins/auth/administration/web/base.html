@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <title>Admin Panel - {% block title %}{% endblock %}</title>
+{#    <link rel="icon" type="image/x-icon" href="{{ url_for("administration.static", filename="favicon.ico") }}">#}
+    <script src="{{ url_for("administration.static", filename="jquery.min.js") }}"></script>
+    <script src="{{ url_for("administration.static", filename="tailwindcss.min.js") }}"></script>
+    <link href="{{ url_for("administration.static", filename="material.css") }}" rel="stylesheet">
+    <style>
+        @font-face {
+          font-family: 'Material Icons';
+          font-style: normal;
+          font-weight: 400;
+          src: url({{ url_for("administration.static", filename="material.tff") }}) format('truetype');
+        }
+    </style>
+    {% endblock %}
+</head>
+<body class="bg-gray-800 text-gray-300 min-h-screen flex flex-col">
+    <header id="header">
+        {% block header %}
+            <ul class="flex gap-2">
+                <li>
+                    <a class="{{ url_for("index") }}">
+                        <img class="h-10" src="{{ url_for("static", filename="assets/DynAPI.svg") }}" alt="DynAPI" />
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ url_for("swagger") }}">
+                        <img class="h-10" src="{{ url_for("static", filename="assets/swagger-logo.svg") }}" alt="Swagger" />
+                    </a>
+                </li>
+                <li>
+                    <a class="{{ url_for("redoc") }}">
+                        <img class="h-10" src="{{ url_for("static", filename="assets/redoc-logo.png") }}" alt="ReDoc" />
+                    </a>
+                </li>
+                {% block header_extra %}{% endblock %}
+            </ul>
+        {% endblock %}
+    </header>
+    <main id="content" class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+    <footer id="footer">
+        {% block footer %}
+            <p class="text-center p-2 select-none">
+                Copyright <span id="copyright-year">xxxx</span> by <a class="hover:underline" href="https://github.com/DynAPI">DynAPI</a>.
+            </p>
+        {% endblock %}
+    </footer>
+    <script>
+        $(`#copyright-year`).text(`${new Date().getFullYear()}`)
+    </script>
+</body>
+</html>

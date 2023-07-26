@@ -1,11 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin - Panel</title>
-{#    <link rel="icon" type="image/x-icon" href="{{ url_for("static", filename="favicon.ico") }}">#}
-</head>
-<body>
-    <h1>Administration Panel</h1>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Admin Panel{% endblock %}
+{% block content %}
+
+    <div id="userData">
+        <i class="material-icons animate-spin">refresh</i>
+    </div>
+    <div id="apiKeyData">
+        <i class="material-icons animate-spin">refresh</i>
+    </div>
+
+    <script>
+        function makeTd(value) {
+            return $(`<td class='border bg-gray-700 border-transparent rounded-md shadow-lg'></td>`).text(value);
+        }
+
+        $.ajax({
+            url: "http://localhost:8080/admin/user",
+            success: function (users, status, xhr) {
+                const table = $(`<table class='table-auto border-separate border-spacing-1.5'><tr><th>Username</th><th>Description</th><th>Roles</th></tr>`);
+                for (let user of users) {
+                    table.append(
+                        $(`<tr></tr>`)
+                            .append(makeTd(user.username))
+                            .append(makeTd(user.description))
+                            .append(makeTd(user.roles))
+                            .append("<td class='cursor-pointer material-icons bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg '>edit</td>")
+                    )
+                }
+                table.append(
+                    $("<tr>")
+                        .append("<td colspan='4' class='cursor-pointer material-icons bg-gray-700 text-gray-300 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center'>add</td>")
+                )
+                $("#userData").html(table);
+            }
+        });
+
+        $.ajax({
+            url: "http://localhost:8080/admin/api_key",
+            success: function (result, status, xhr) {
+                const table = $(`<table class='table-auto border-separate border-spacing-1.5 bg-gray-800 text-gray-300'><tr><th>Apikey</th><th>Description</th><th>Roles</th></tr></table>`);
+                for (let i = 0; i < result.length; i++) {
+                    table.append(
+                        $(`<tr></tr>`)
+                            .append(makeTd(user.api_key))
+                            .append(makeTd(user.description))
+                            .append(makeTd(user.roles))
+                            .append(`<td class='cursor-pointer material-icons bg-gray-700 text-gray-300 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg'>edit</td>`)
+                    );
+                }
+                table.append(
+                    $(`<tr>`)
+                        .append(`<td colspan='4' class='cursor-pointer material-icons bg-gray-700 text-gray-300 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center'>add</td>`)
+
+                );
+                $("#apiKeyData").html(table);
+            }
+        });
+    </script>
+{% endblock %}
