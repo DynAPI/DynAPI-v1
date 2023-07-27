@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
+
+cd src/dynapi/web/static/
+
+IFS=" " read -r -a IPS <<< "$(hostname -I)"
+IP="${IPS[0]}"
+PORT=8000
+
+echo "Serving documentation on http://${IP}:${8000}/docs/"
+python3 -m http.server --bind 0.0.0.0 $PORT > /dev/null
