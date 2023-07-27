@@ -9,6 +9,7 @@ import datetime
 import traceback
 import itertools
 from collections import defaultdict
+import flask
 from database import dbutil
 from exceptions import DoNotImportException
 from apiconfig import config
@@ -47,7 +48,7 @@ def openapi():
                 Last-Update: {datetime.datetime.now():%Y-%m-%d %H:%M}
                 """),
                 'x-logo': dict(
-                    url="/static/assets/DynAPI.svg",
+                    url=flask.url_for("static", filename="assets/DynAPI.svg"),
                 )
             },
             tags=[
@@ -60,10 +61,6 @@ def openapi():
                     description="Meta Information",
                 ),
             ],
-            externalDocs=dict(
-                url="https://dynapi-docs.readthedocs.io/en/latest/",
-                description="Read the DynAPI-Docs"
-            ),
             paths=paths,
         )
     except Exception as exc:
@@ -85,7 +82,7 @@ def openapi_error_fallback(exception: Exception):
             **Detail:** {exception}
             """),
             'x-logo': dict(
-                url="/static/assets/DynAPI.svg",
+                url=flask.url_for("static", filename="assets/DynAPI.svg"),
             )
         },
     )
