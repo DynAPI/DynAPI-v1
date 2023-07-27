@@ -7,6 +7,7 @@ from pypika import Criterion
 
 
 OPMAP = {
+    "=": Criterion.eq,
     "==": Criterion.eq,
     "eq": Criterion.eq,
     "!=": Criterion.ne,

@@ -50,6 +50,9 @@ def makespec(method: str, schemaname: str, tablename: str, columns):
                         for col_name, column in columns.items()
                     }),
                     affected=s.Integer(),
+                    order_by=s.Array(
+                        s.Array().size(2).example(["[column]", True])
+                    ),
                 ).popProperties(*METHOD2POP.get(method, [])),
                 responses={
                     200: s.Object({

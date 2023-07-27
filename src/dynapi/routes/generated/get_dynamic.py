@@ -6,7 +6,7 @@ r"""
 from __main__ import app
 import flask
 from flask import request, g
-from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
+from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion, Order
 from database import dbutil
 import apiconfig
 from apiutil import makespec, format_name, get_body_config, make_schema, responsify
@@ -40,6 +40,10 @@ def get(schemaname: str, tablename: str):
             query = query.limit(body.limit)
         if body.offset:
             query = query.offset(body.offset)
+
+        if body.order_by:
+            for col, asc in body.normalized_order_by:
+                query = query.orderby(col, order=Order.asc if asc else Order.desc)
 
         cursor.execute(str(query))
         g.SQL = str(query)
