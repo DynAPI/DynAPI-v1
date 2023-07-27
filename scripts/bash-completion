@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+THIS="$(realpath "$(pwd)/$(dirname "${BASH_SOURCE[0]}")/..")"
+
+_plugin_manager_completions()
+{
+#    local SUBCOMMAND=${COMP_WORDS[1]}
+    local CURRENT_WORD=${COMP_WORDS[$COMP_CWORD]}
+#    local LAST_WORD=${COMP_WORDS[$(($COMP_CWORD - 1))]}
+
+    if [ $COMP_CWORD = 1 ]; then
+      mapfile -t COMPREPLY < <(compgen -W "help list enable disable activate deactivate fix-dependencies" -- "${CURRENT_WORD}")
+    elif [ "$CURRENT_WORD" = "list" ] || [ "$CURRENT_WORD" = "help" ] || [ "$CURRENT_WORD" = "fix-dependencies" ]; then
+      COMPREPLY=()
+    else
+      plugin_dir="${THIS}/plugins/"
+      mapfile -t found < <(find "$plugin_dir" -type f -name __init__.py)
+      plugins=()
+      for fp in "${found[@]}"; do
+        fp="${fp#"$plugin_dir"}"
+        fp="${fp%"/__init__.py"}"
+        plugins+=("$fp")
+      done
+      mapfile -t COMPREPLY < <(compgen -W "${plugins[*]}" -- "${CURRENT_WORD}")
+    fi
+}
+
+complete -F _plugin_manager_completions plugin-manager
