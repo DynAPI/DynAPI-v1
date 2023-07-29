@@ -18,20 +18,30 @@ mkdir -p "build/dynapi/plugins/"
 
 # install dependencies into (new) copied source-code directory
 echo "Installing dependencies..."
-python3 -m pip install -q -r "requirements-names.txt" -t "build/dynapi/" --compile --disable-pip-version-check
+python3 -m pip install -qqq -r "requirements-names.txt" -t "build/dynapi/" --compile --disable-pip-version-check
+for dep_file in build/dynapi/plugins/*/dependencies; do
+  if [ ! -f "$dep_file" ]; then
+    continue
+  fi
+  plugin_name="$(basename "$(dirname "$dep_file")")"
+  echo "Installing dependencies for plugin ${plugin_name}..."
+  python3 -m pip install -qqq -r "$dep_file" -t "build/dynapi/" --compile --disable-pip-version-check
+done
+dist_infos=$(find build/dynapi/*.dist-info -maxdepth 0 -printf '%f\n')
 rm -rf build/dynapi/*.dist-info
 
 echo "Installing scripts..."
-echo "Build for $(python3 -V)
+echo "DynAPI v$(grep -Pzo '(?s)__version__ = "\K.*?(?=")' "src/dynapi/__main__.py" | tr -d '\0') build
+Python: $(python3 -V | awk '{print $2}')
+pip:    $(pip3 --version | awk '{print $2}')
+Dependencies Installed:
+$(echo "$dist_infos" | sed 's/\.dist-info$//' | awk -F- '{print $1,$2}' | column -t | sed 's/^/ - /')
+Plugins-Folder:
+$(find build/dynapi/plugins/* -maxdepth 0 -printf '%f\n' | sed 's/^/ - /')
 OS Detail:
 $(sed 's/^/ /' /etc/os-release)
 " > "build/dynapi/meta.info"
 cp "scripts/extra/dynapi.run.sh" "build/dynapi/dynapi.run"
 chmod +x "build/dynapi/dynapi.run"
-
-#echo "Opimizations..."
-#python3 -m compileall "build/dynapi/" -b -q
-#find build/dynapi -name "*.py" -type f -delete
-#pyminify build/dynapi --in-place
 
 echo "Build successful"
