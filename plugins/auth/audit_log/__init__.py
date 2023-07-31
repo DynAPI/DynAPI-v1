@@ -90,7 +90,7 @@ def logger_worker():
             log_queue()
         except Exception as exc:
             print(f"Failed to write log to queue: {type(exc).__name__}: {exc}")
-        for _ in range(15):
+        for _ in range(5):
             if not app.alive:  # noqa
                 break
             time.sleep(1)
