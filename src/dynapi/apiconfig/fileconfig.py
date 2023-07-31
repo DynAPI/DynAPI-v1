@@ -4,10 +4,11 @@ r"""
 
 """
 from __main__ import __file__ as main_file, __version__ as main_version
-import configparser
-from pathlib import Path
 import os
 import sys
+import re
+import configparser
+from pathlib import Path
 
 
 if "-h" in sys.argv or "--help" in sys.argv:
@@ -28,7 +29,16 @@ if "-v" in sys.argv or "--version" in sys.argv:
 argument_config_file = sys.argv[1] if len(sys.argv) > 1 else None
 
 
-config = configparser.ConfigParser(
+class ExtendedMethodsParser(configparser.ConfigParser):
+    @staticmethod
+    def _str2list(string: str):
+        return [val for val in re.split(r"\s*[,;]\s*", string) if val]
+
+    def getlist(self, section, option, *, raw=False, vars=None, fallback=getattr(configparser, '_UNSET')):
+        return self._get_conv(section, option, self._str2list, raw=raw, vars=vars, fallback=fallback)
+
+
+config = ExtendedMethodsParser(
     allow_no_value=False,
     delimiters=("=", ":"),
     comment_prefixes=("#", ";"),
