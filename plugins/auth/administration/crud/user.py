@@ -19,6 +19,7 @@ from .pwutil import generate_password_hash
 schemaname = config.get('auth', 'schema') if config.has_option('auth', 'schema') else 'dynapi'
 tablename = config.get('auth', 'users_table') if config.has_option('auth', 'users_table') else 'users'
 
+
 @dataclasses.dataclass
 class NewUserBody:
     username: str = dataclasses.Field(min_length=1)
@@ -27,8 +28,8 @@ class NewUserBody:
     roles: t.Optional[t.List[str]] = dataclasses.Field()
 
 
-@admin.route("/user", methods=["POST"])
-def create_user():
+@admin.post("/api/user")
+def create_users():
     try:
         body = NewUserBody(**flask.request.json)
     except (TypeError, ValueError):
@@ -52,13 +53,14 @@ def create_user():
                 if col.name != "passwordhash"
             })
 
-@admin.route("/user", methods=["DELETE"])
-def delete_user():
+
+@admin.delete("/api/user")
+def delete_users():
     if not flask.request.is_json or not isinstance(flask.request.json, dict):
         raise flask.abort(http.HTTPStatus.BAD_REQUEST)
 
     body = get_body_config(request)
-    with DatabaseConnection() as conn:
+    with flask.g.db_conn as conn:
         cursor = conn.cursor()
         schema = Schema(schemaname)
         table = Table(tablename)
@@ -66,14 +68,14 @@ def delete_user():
             .from_(schema.__getattr__(tablename)) \
             .delete() \
             .where(
-            Criterion.any(
-                Criterion.all(
-                    dbutil.OPMAP[op.lower()](table.__getattr__(attr), value)
-                    for attr, op, value in ands
+                Criterion.any(
+                    Criterion.all(
+                        dbutil.OPMAP[op.lower()](table.__getattr__(attr), value)
+                        for attr, op, value in ands
+                    )
+                    for ands in body.filters
                 )
-                for ands in body.filters
-            )
-        ) \
+            ) \
             .returning("*")
         cursor.execute(str(query))
 
@@ -83,15 +85,15 @@ def delete_user():
             for row in cursor.fetchall()
         ])
 
-@admin.route("/user", methods=["PUT"])
-def update_user():
+
+@admin.put("/api/user")
+def update_users():
     if not flask.request.is_json or not isinstance(flask.request.json, dict):
         raise flask.abort(http.HTTPStatus.BAD_REQUEST)
 
     body = get_body_config(request)
     with DatabaseConnection() as conn:
-        from psycopg2.extras import NamedTupleCursor
-        cursor = conn.cursor(cursor_factory=NamedTupleCursor)
+        cursor = conn.cursor()
         schema = Schema(schemaname)
         table = Table(tablename)
         query = Query \
@@ -120,10 +122,10 @@ def update_user():
         ])
 
 
-@admin.route("/user", methods=["GET"])
-def get_user():
+@admin.get("/api/user")
+def get_users():
     body = get_body_config(request)
-    with DatabaseConnection() as conn:
+    with flask.g.db_conn as conn:
         cursor = conn.cursor()
 
         schema = Schema(schemaname)

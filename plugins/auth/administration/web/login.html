@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel - Login{% endblock %}
+{% block content %}
+    <div class="pt-10 flex flex-col gap-2">
+        <div class="w-full max-w-xl m-auto px-5">
+            {% if error %}
+                <div class="bg-red-800 border border-red-500 text-white px-2 py-1 rounded-md mb-5">
+                    {{ error }}
+                </div>
+            {% endif %}
+            <form method="post" class="flex flex-col gap-1">
+                <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Admin" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:placeholder:opacity-30 hover:placeholder:opacity-30" />
+                <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password:</label>
+                <input type="password" id="password" name="password" placeholder="***********" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:placeholder:opacity-30 hover:placeholder:opacity-30"/>
+                <input type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-[70%] mx-auto" value="Login">
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -27,7 +27,7 @@ class NewApiKeyBody:
     roles: t.Optional[t.List[str]] = dataclasses.Field()
 
 
-@admin.route("/api_key", methods=["POST"])
+@admin.post("/api/api_key")
 def create_api_key():
     if not flask.request.is_json or not isinstance(flask.request.json, dict):
         raise flask.abort(http.HTTPStatus.BAD_REQUEST)
@@ -38,7 +38,7 @@ def create_api_key():
         raise flask.abort(http.HTTPStatus.BAD_REQUEST)
     else:
         roles = [role.lower() for role in body.roles]
-        with DatabaseConnection() as conn:
+        with flask.g.db_conn as conn:
             cursor = conn.cursor()
             schema = Schema(schemaname)
             query = Query.into(schema.__getattr__(tablename)) \
@@ -54,13 +54,13 @@ def create_api_key():
             })
 
 
-@admin.route("/api_key", methods=["DELETE"])
+@admin.delete("/api/api_key")
 def delete_api_key():
     if not flask.request.is_json or not isinstance(flask.request.json, dict):
         raise flask.abort(http.HTTPStatus.BAD_REQUEST)
 
     body = get_body_config(request)
-    with DatabaseConnection() as conn:
+    with flask.g.db_conn as conn:
         cursor = conn.cursor()
         schema = Schema(schemaname)
         table = Table(tablename)
@@ -86,13 +86,13 @@ def delete_api_key():
         ])
 
 
-@admin.route("/api_key", methods=["PUT"])
+@admin.put("/api/api_key")
 def update_api_key():
     if not flask.request.is_json or not isinstance(flask.request.json, dict):
         raise flask.abort(http.HTTPStatus.BAD_REQUEST)
 
     body = get_body_config(request)
-    with DatabaseConnection() as conn:
+    with flask.g.db_conn as conn:
         from psycopg2.extras import NamedTupleCursor
         cursor = conn.cursor(cursor_factory=NamedTupleCursor)
         schema = Schema(schemaname)
@@ -123,10 +123,10 @@ def update_api_key():
         ])
 
 
-@admin.route("/api_key", methods=["GET"])
+@admin.get("/api/api_key")
 def get_api_key():
     body = get_body_config(request)
-    with DatabaseConnection() as conn:
+    with flask.g.db_conn as conn:
         cursor = conn.cursor()
 
         schema = Schema(schemaname)

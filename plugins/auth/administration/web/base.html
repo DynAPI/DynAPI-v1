@@ -2,17 +2,24 @@
 <html lang="en">
 <head>
     {% block head %}
-    <title>Admin Panel - {% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
 {#    <link rel="icon" type="image/x-icon" href="{{ url_for("administration.static", filename="favicon.ico") }}">#}
-    <script src="{{ url_for("administration.static", filename="jquery.min.js") }}"></script>
-    <script src="{{ url_for("administration.static", filename="tailwindcss.min.js") }}"></script>
-    <link href="{{ url_for("administration.static", filename="material.css") }}" rel="stylesheet">
+    <script src="{{ url_for(".static", filename="js/jquery.min.js") }}"></script>
+    <script src="{{ url_for(".static", filename="js/tailwindcss.min.js") }}"></script>
+    <link href="{{ url_for(".static", filename="css/material.css") }}" rel="stylesheet">
+    <script type="importmap">
+        {
+            "imports": {
+                "http-util": "{{ url_for(".static", filename="js/http-util.js") }}"
+            }
+        }
+    </script>
     <style>
         @font-face {
           font-family: 'Material Icons';
           font-style: normal;
           font-weight: 400;
-          src: url({{ url_for("administration.static", filename="material.tff") }}) format('truetype');
+          src: url({{ url_for(".static", filename="material.tff") }}) format('truetype');
         }
     </style>
     {% endblock %}
@@ -20,30 +27,65 @@
 <body class="bg-gray-800 text-gray-300 min-h-screen flex flex-col">
     <header id="header">
         {% block header %}
-            <ul class="flex gap-2">
+            <ul class="flex gap-2 p-2">
                 <li>
-                    <a class="{{ url_for("index") }}">
+                    <a href="{{ url_for(".index") }}" title="Admin-Panel">
+                        <i class="material-icons text-[2.5rem]">settings</i>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for(".users") }}" title="Users">
+                        <i class="material-icons text-[2.5rem]">people</i>
+{#                        <i class="material-icons text-[2.5rem]">account_circle</i>#}
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for(".api_keys") }}" title="API-Keys">
+{#                        <i class="material-icons text-[2.5rem]">nfc</i>#}
+{#                        <i class="material-icons text-[2.5rem]">security</i>#}
+                        <i class="material-icons text-[2.5rem]">vpn_key</i>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for(".audit_log") }}" title="Audit-Logs">
+                        <i class="material-icons text-[2.5rem]">list</i>
+                    </a>
+                </li>
+                {% if session.get("logged-in") %}
+                <li>
+                    <a href="{{ url_for(".logout") }}" title="Logout">
+                        <i class="material-icons text-[2.5rem]">exit_to_app</i>
+                    </a>
+                </li>
+                {% endif %}
+                <li class="w-full text-center text-2xl select-none">
+                    {{ self.title() }}
+                </li>
+                <li>
+                    <a href="{{ url_for("index") }}" title="Homepage">
                         <img class="h-10" src="{{ url_for("static", filename="assets/DynAPI.svg") }}" alt="DynAPI" />
                     </a>
                 </li>
                 <li>
-                    <a class="{{ url_for("swagger") }}">
+                    <a href="{{ url_for("swagger") }}" title="Swagger Documentation">
                         <img class="h-10" src="{{ url_for("static", filename="assets/swagger-logo.svg") }}" alt="Swagger" />
                     </a>
                 </li>
                 <li>
-                    <a class="{{ url_for("redoc") }}">
+                    <a href="{{ url_for("redoc") }}" title="ReDoc Documentation">
                         <img class="h-10" src="{{ url_for("static", filename="assets/redoc-logo.png") }}" alt="ReDoc" />
                     </a>
                 </li>
                 {% block header_extra %}{% endblock %}
             </ul>
         {% endblock %}
+        <div class="h-1 rounded-md bg-gray-500 w-[calc(100%-20px)] mx-auto"></div>
     </header>
-    <main id="content" class="flex-grow">
+    <main id="content" class="flex-grow flex flex-col">
         {% block content %}{% endblock %}
     </main>
     <footer id="footer">
+        <div class="h-1 rounded-md bg-gray-500 w-[calc(100%-20px)] mx-auto"></div>
         {% block footer %}
             <p class="text-center p-2 select-none">
                 Copyright <span id="copyright-year">xxxx</span> by <a class="hover:underline" href="https://github.com/DynAPI">DynAPI</a>.

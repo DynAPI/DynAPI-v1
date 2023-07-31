@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel - Users{% endblock %}
+{% block content %}
+
+    <div id="userData">
+        <i class="material-icons animate-spin">refresh</i>
+    </div>
+
+    <script type="module">
+        function makeTableCell(value) {
+            return $(`<td class='border bg-gray-700 border-transparent rounded-md shadow-lg px-1'></td>`).text(value);
+        }
+
+        function updateUsersTable() {
+            $.ajax({
+                url: "{{ url_for(".get_users") }}",
+                success: function (users, status, xhr) {
+                    const table = $(`<table class='table-auto border-separate border-spacing-1.5 w-full'></table>`);
+
+                    table.append(
+                        $(`<tr>`)
+                            .append($(`<th colspan="5">`)
+                                .append(`<h2 class="text-center font-bold text-2xl">Users</h2>`)
+                            )
+                    )
+                    table.append(
+                        $(`<tr></tr>`)
+                            .append($(`<th>`).text("Username"))
+                            .append($(`<th>`).text("Description"))
+                            .append($(`<th>`).text("Roles"))
+                            .append($(`<th>`))
+                            .append($(`<th>`))
+                    )
+                    for (let user of users) {
+                        const row = $(`<tr></tr>`)
+                                .append(makeTableCell(user.username))
+                                .append(makeTableCell(user.description))
+                                .append(makeTableCell(user.roles))
+                                .append(
+                                    $(`<td class='cursor-pointer bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center max-w-fit'>`)
+                                        .append(`<i class="material-icons">edit</i>`)
+                                )
+                                .append(
+                                   $(`<td class='cursor-pointer bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center max-w-fit'>`)
+                                       .append(`<i class="material-icons">delete_forever</i>`)
+                                       .on("click", () => {
+                                           if (!confirm(`Are you sure you want to delete ${user.username}`)) {
+                                               return;
+                                           }
+                                           $.ajax({
+                                               method: "DELETE",
+                                               url: "{{ url_for(".delete_users") }}",
+                                               contentType: 'application/json',
+                                               data: JSON.stringify({
+                                                   filters: [[["username", "=", user.username]]]
+                                               }),
+                                               success: () => {
+                                                   row.children().addClass("bg-red-800");
+                                                   row.fadeTo(300, 0.0, () => row.remove());
+                                               },
+                                               error: () => {
+                                                   alert(`Something went wrong while deleting ${user.username}`)
+                                               },
+                                           })
+                                       })
+                                )
+                        table.append(row)
+                    }
+                    table.append(
+                        $(`<tr>`)
+                            .append(`<td colspan='5' class='cursor-pointer material-icons bg-gray-700 text-gray-300 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center'>add</td>`)
+                    )
+                    $("#userData").html(table);
+                }
+            });
+        }
+
+        {#row.on("click", () => assignRow.toggle());#}
+
+        updateUsersTable();
+    </script>
+{% endblock %}

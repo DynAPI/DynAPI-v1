@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel - API-Keys{% endblock %}
+{% block content %}
+
+    <div id="apiKeyData">
+        <i class="material-icons animate-spin">refresh</i>
+    </div>
+
+    <script type="module">
+        function makeTableCell(value) {
+            return $(`<td class='border bg-gray-700 border-transparent rounded-md shadow-lg px-1'></td>`).text(value);
+        }
+
+        function updateApiKeysTables() {
+            $.ajax({
+                url: "http://localhost:8080/admin/api_key",
+                success: function (api_keys, status, xhr) {
+                    const table = $(`<table class='table-auto border-separate border-spacing-1.5 w-full'></table>`);
+                    table.append($('<th colspan="4"><h2 class="text-center font-bold text-2xl">API-Keys</h2></th>'))
+                    table.append(
+                        $(`<tr></tr>`)
+                            .append($(`<th></th>`).text("API-Key"))
+                            .append($(`<th></th>`).text("Description"))
+                            .append($(`<th></th>`).text("Roles"))
+                    )
+                    for (let api_key of api_keys) {
+                        table.append(
+                            $(`<tr></tr>`)
+                                .append(makeTableCell(api_key.api_key))
+                                .append(makeTableCell(api_key.description))
+                                .append(makeTableCell(api_key.roles))
+                                .append(`<td class='cursor-pointer material-icons bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg '>edit</td>`)
+                        )
+                    }
+                    table.append(
+                        $(`<tr>`)
+                            .append(`<td colspan='4' class='cursor-pointer material-icons bg-gray-700 text-gray-300 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center'>add</td>`)
+                    )
+                    $("#apiKeyData").html(table);
+                }
+            });
+        }
+
+        updateApiKeysTables()
+    </script>
+{% endblock %}

@@ -1,59 +1,62 @@
 {% extends "base.html" %}
 {% block title %}Admin Panel{% endblock %}
 {% block content %}
-
-    <div id="userData">
-        <i class="material-icons animate-spin">refresh</i>
+    <div class="flex justify-evenly gap-5 py-10">
+        <a class="flex flex-col text-center" href="{{ url_for("administration.users") }}" title="Users">
+            <i class="material-icons text-[5rem]">people</i>
+            <p>Users</p>
+            <p id="users_count"></p>
+        </a>
+        <a class="flex flex-col text-center" href="{{ url_for("administration.api_keys") }}" title="API-Keys">
+            <i class="material-icons text-[5rem]">vpn_key</i>
+            <p>API-Keys</p>
+            <p id="api_keys_count"></p>
+        </a>
+        <a class="flex flex-col text-center" href="{{ url_for("administration.audit_log") }}" title="Audit-Logs">
+            <i class="material-icons text-[5rem]">list</i>
+            <p>Audit-Logs</p>
+            <p id="audit_logs_count"></p>
+        </a>
     </div>
-    <div id="apiKeyData">
-        <i class="material-icons animate-spin">refresh</i>
-    </div>
 
-    <script>
-        function makeTd(value) {
-            return $(`<td class='border bg-gray-700 border-transparent rounded-md shadow-lg'></td>`).text(value);
-        }
-
+    <script type="module">
+    function updateCountStats() {
         $.ajax({
-            url: "http://localhost:8080/admin/user",
-            success: function (users, status, xhr) {
-                const table = $(`<table class='table-auto border-separate border-spacing-1.5'><tr><th>Username</th><th>Description</th><th>Roles</th></tr>`);
-                for (let user of users) {
-                    table.append(
-                        $(`<tr></tr>`)
-                            .append(makeTd(user.username))
-                            .append(makeTd(user.description))
-                            .append(makeTd(user.roles))
-                            .append("<td class='cursor-pointer material-icons bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg '>edit</td>")
-                    )
-                }
-                table.append(
-                    $("<tr>")
-                        .append("<td colspan='4' class='cursor-pointer material-icons bg-gray-700 text-gray-300 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center'>add</td>")
-                )
-                $("#userData").html(table);
+            method: "GET",
+            url: "{{ url_for(".count_stats") }}",
+            success: function (stats) {
+                $("#users_count").text(stats.users_count.toLocaleString());
+                $("#api_keys_count").text(stats.api_keys_count.toLocaleString());
+                $("#audit_logs_count").text(stats.audit_logs_count.toLocaleString());
             }
         });
+    }
 
+    {#setInterval(updateCountStats, 30_000);#}
+    updateCountStats()
+    </script>
+
+
+    <div class="p-2">
+        <span>Active Plugins:</span>
+        <span id="active-plugins" class="inline-flex gap-2 px-2">
+            <i class="material-icons animate-spin">refresh</i>
+        </span>
+    </div>
+
+    <script type="module">
         $.ajax({
-            url: "http://localhost:8080/admin/api_key",
-            success: function (result, status, xhr) {
-                const table = $(`<table class='table-auto border-separate border-spacing-1.5 bg-gray-800 text-gray-300'><tr><th>Apikey</th><th>Description</th><th>Roles</th></tr></table>`);
-                for (let i = 0; i < result.length; i++) {
-                    table.append(
-                        $(`<tr></tr>`)
-                            .append(makeTd(user.api_key))
-                            .append(makeTd(user.description))
-                            .append(makeTd(user.roles))
-                            .append(`<td class='cursor-pointer material-icons bg-gray-700 text-gray-300 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg'>edit</td>`)
-                    );
+            method: "GET",
+            url: "{{ url_for(".list_plugins") }}",
+            success: function (plugins) {
+                const activePluginsBox = $("#active-plugins");
+                activePluginsBox.empty();
+                for (let name of plugins) {
+                   activePluginsBox.append(
+                       $(`<div class="px-2 border border-red rounded-md">`)
+                           .text(name)
+                   )
                 }
-                table.append(
-                    $(`<tr>`)
-                        .append(`<td colspan='4' class='cursor-pointer material-icons bg-gray-700 text-gray-300 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center'>add</td>`)
-
-                );
-                $("#apiKeyData").html(table);
             }
         });
     </script>
