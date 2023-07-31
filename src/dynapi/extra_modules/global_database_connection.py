@@ -24,7 +24,7 @@ def priority_before_request(fn):
 @priority_before_request
 def create_connection():
     flask.g.start_time = time.time()
-    if flask.request.path.startswith("/static"):
+    if "/static/" in flask.request.path:
         return
     try:
         flask.g.db_conn = DatabaseConnection()
