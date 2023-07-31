@@ -1,0 +1,5 @@
+parse and minify html, javascript, css and less responses.
+
+Helpful for auth/administration or other plugins that offer a web-ui
+
+[plugin:minify]
