@@ -18,6 +18,7 @@ from . import permissions_check
 schemaname = config.get('auth', 'schema') if config.has_option('auth', 'schema') else 'dynapi'
 tablename = config.get('auth', 'users_table') if config.has_option('auth', 'users_table') else 'users'
 
+
 @app.before_request
 def verify_authorization():
     if not flask.request.path.startswith("/api"):
