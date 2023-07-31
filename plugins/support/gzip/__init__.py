@@ -10,13 +10,13 @@ from werkzeug import datastructures
 from apiconfig import config
 
 
-if config.has_option("api", "gzip-on"):
-    gzip_on = [mimetype.strip() for mimetype in config.get("api", "gzip-on", fallback=None).split(",")]
+if config.has_option("plugin:gzip", "gzip-on"):
+    gzip_on = config.getlist("plugin:gzip", "gzip-on")
 else:
     gzip_on = ["text/html", "text/css", "application/javascript", "text/xml", "application/json"]
 gzip_on = datastructures.MIMEAccept((mime, 1) for mime in gzip_on)
 
-gzip_after = config.getint("api", "gzip-after", fallback=500)
+gzip_after = config.getint("plugin:gzip", "gzip-after", fallback=500)
 
 
 def gzip_compression(response: flask.Response) -> flask.Response:
@@ -45,5 +45,4 @@ def gzip_compression(response: flask.Response) -> flask.Response:
     return response
 
 
-if config.getboolean("api", "gzip", fallback=False):
-    app.after_request(gzip_compression)
+app.after_request(gzip_compression)

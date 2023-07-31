@@ -13,5 +13,4 @@ def msgpack_dumps(data):
     return msgpack.dumps(data, default=convert2default), "application/msgpack"
 
 
-if config.getboolean("api", "msgpack", fallback=False):
-    register.converter("application/msgpack", msgpack_dumps)
+register.converter("application/msgpack", msgpack_dumps)

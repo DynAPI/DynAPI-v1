@@ -1,9 +1,6 @@
 Allows the API to respond with xml instead of json if the request allows it
 
-[api]
-# gzip: boolean
-# whether or not to gzip content
-gzip=True
+[plugin:gzip]
 # gzip-on: ,-seperated strings
 # which mimetypes to gzip
 # allowed values: type/subtype, type/*, */subtype
