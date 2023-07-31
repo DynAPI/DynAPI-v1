@@ -8,6 +8,7 @@ import os.path as p
 import importlib
 from exceptions import DoNotImportException
 from util import TCodes
+from apiconfig import config
 
 
 def load_folder(folder: str):
@@ -42,6 +43,8 @@ def load_plugins():
     plugins = {}
     for name in os.listdir("plugins"):
         if name.startswith("_"):
+            continue
+        if config.getboolean("plugins", name, fallback=True) is False:
             continue
         try:
             plugin = importlib.import_module(f"plugins.{name}")
