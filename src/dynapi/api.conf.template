@@ -21,6 +21,16 @@ threaded=True
 # changes how many processes run DynAPI (chose between threading or processes, dont activate both)
 processes=1
 
+
+[plugins]
+# [active-plugin-name]: bool
+# control whether or not a plugin should be loaded
+# Note: if the plugin was activated with plugin-manager the name changes
+# from [category]/[plugin_name] to [category]_[plugin_name]
+# default: True
+; plugin_name=True
+
+
 [auth]
 # ratelimit: string
 # limit the number of requests
