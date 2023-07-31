@@ -16,6 +16,13 @@ cp api.conf.template api.conf
 ./dynapi.run
 ```
 
+
+## Documentation
+
+```bash
+./scripts/serve-docs
+```
+
 # Body
 ```json5
 {
