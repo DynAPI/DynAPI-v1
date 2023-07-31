@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
 set -e
 cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
+
+echo "make-rpm is not implemented yet."
+echo "But we would appreciate your help"
+
+exit 1
