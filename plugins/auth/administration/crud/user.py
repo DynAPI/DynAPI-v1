@@ -10,11 +10,13 @@ import http
 import base64
 import typing as t
 import flask
+from flask import g
 from apiconfig import config
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from pydantic import dataclasses
 from database import DatabaseConnection, dbutil
 from .pwutil import generate_password_hash
+
 
 schemaname = config.get('auth', 'schema') if config.has_option('auth', 'schema') else 'dynapi'
 tablename = config.get('auth', 'users_table') if config.has_option('auth', 'users_table') else 'users'
@@ -80,6 +82,7 @@ def delete_users():
         cursor.execute(str(query))
 
         conn.commit()
+        g.SQL = str(query)
         return flask.jsonify([
             {col.name: row[index] for index, col in enumerate(cursor.description)}
             for row in cursor.fetchall()
@@ -116,6 +119,7 @@ def update_users():
         print(query)
         cursor.execute(str(query))
         conn.commit()
+        g.SQL = str(query)
         return flask.jsonify([
             {col.name: row[index] for index, col in enumerate(cursor.description)}
             for row in cursor.fetchall()
@@ -145,9 +149,12 @@ def get_users():
         )
 
         if body.limit:
-            query = query.limit(body.limit).offset(body.offset)
+            query = query.limit(body.limit)
+        if body.offset:
+            query = query.offset(body.offset)
 
         cursor.execute(str(query))
+        g.SQL = str(query)
         return flask.jsonify([
             {col.name: row[index] for index, col in enumerate(cursor.description)}
             for row in cursor.fetchall()
