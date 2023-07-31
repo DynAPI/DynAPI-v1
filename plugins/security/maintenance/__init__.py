@@ -25,8 +25,8 @@ def openapi_maintenance_response():
             'version': __version__,
             # summary=summary,
             'description': textwrap.dedent(fr"""
-                # This DynAPI instance is currently under maintenance and not available
-                """),
+            # This DynAPI instance is currently under maintenance and not available
+            """),
             'x-logo': dict(
                 url=flask.url_for("static", filename="assets/DynAPI.svg"),
             )
