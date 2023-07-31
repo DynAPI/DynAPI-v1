@@ -28,7 +28,8 @@ for dep_file in build/dynapi/plugins/*/dependencies; do
   python3 -m pip install -qqq -r "$dep_file" -t "build/dynapi/" --compile --disable-pip-version-check
 done
 dist_infos=$(find build/dynapi/*.dist-info -maxdepth 0 -printf '%f\n')
-rm -rf build/dynapi/*.dist-info
+mkdir -p build/dynapi/dist-info
+mv build/dynapi/*.dist-info build/dynapi/dist-info/
 
 echo "Installing scripts..."
 echo "DynAPI v$(grep -Pzo '(?s)__version__ = "\K.*?(?=")' "src/dynapi/__main__.py" | tr -d '\0') build
