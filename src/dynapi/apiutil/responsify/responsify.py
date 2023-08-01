@@ -29,11 +29,13 @@ def responsify(*args, **kwargs):
 
     data = prepare_data(data)
 
-    for accept in mime_split.split(flask.request.headers.get("Accept")):
-        if accept in converters:
-            dumped, mimetype = converters[accept](data)
-            break
-    else:
+    dumped, mimetype = None, None
+    if "Accept" in flask.request.headers:
+        for accept in mime_split.split(flask.request.headers.get("Accept")):
+            if accept in converters:
+                dumped, mimetype = converters[accept](data)
+                break
+    if dumped is None:
         dumped, mimetype = default_converter(data)
 
     return app.response_class(dumped, mimetype=mimetype)
@@ -50,10 +52,13 @@ def default_converter(data):
 
 
 def cursor2data(cursor: psql.extensions.cursor):
-    return [
-        {col.name: row[index] for index, col in enumerate(cursor.description)}
-        for row in cursor.fetchall()
-    ]
+    # shorter (could also be faster?) but could confuse
+    return cursor.fetchall()  # should return namedtuple which is supported by convert2default
+    # cleaner/more understandable way
+    # return [
+    #     {col.name: row[index] for index, col in enumerate(cursor.description)}
+    #     for row in cursor.fetchall()
+    # ]
     # def cursor_iter():
     #     while True:
     #         rows = cursor.fetchmany(1_000)
