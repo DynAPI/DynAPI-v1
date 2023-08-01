@@ -3,9 +3,27 @@
 r"""
 
 """
+import flask
+from pypika.queries import QueryBuilder
 import psycopg2 as psql
 import psycopg2.extras
 from apiconfig import config
+
+
+class CustomCursor(psql.extras.NamedTupleCursor):
+    def execute(self, query, vars=None):
+        if isinstance(query, QueryBuilder):
+            query = query.get_sql()
+        if flask.has_app_context():
+            flask.g.SQL = query
+        return super().execute(query, vars)
+
+    def executemany(self, query, vars):
+        if isinstance(query, QueryBuilder):
+            query = query.get_sql()
+        if flask.has_app_context():
+            flask.g.SQL = query
+        return super().executemany(query, vars)
 
 
 class DatabaseConnection:
@@ -19,7 +37,7 @@ class DatabaseConnection:
             host=config.get("database", "host", fallback="localhost"),
             port=config.getint("database", "port", fallback=5432),
             connect_timeout=config.getint("database", "connect_timeout", fallback=5),
-            connection_factory=psql.extras.NamedTupleConnection,
+            cursor_factory=CustomCursor,
         )
 
     def __del__(self):
@@ -35,7 +53,7 @@ class DatabaseConnection:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.conn.__exit__(exc_type, exc_val, exc_tb)
 
-    def cursor(self) -> psql.extras.NamedTupleCursor:
+    def cursor(self) -> CustomCursor:
         return self.conn.cursor()
 
     def commit(self):

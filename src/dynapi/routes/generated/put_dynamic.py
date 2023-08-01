@@ -37,10 +37,8 @@ def put(schemaname: str, tablename: str):
             )
 
         query = query.returning("*")
-        print(query)
-        cursor.execute(str(query))
+        cursor.execute(query)
         conn.commit()
-        g.SQL = str(query)
         return responsify(cursor)
         # return responsify([
         #     {col.name: row[index] for index, col in enumerate(cursor.description)}

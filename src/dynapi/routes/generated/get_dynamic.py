@@ -45,8 +45,7 @@ def get(schemaname: str, tablename: str):
             for col, asc in body.normalized_order_by:
                 query = query.orderby(col, order=Order.asc if asc else Order.desc)
 
-        cursor.execute(str(query))
-        g.SQL = str(query)
+        cursor.execute(query)
         return responsify(cursor)
         # return responsify([
         #     {col.name: row[index] for index, col in enumerate(cursor.description)}

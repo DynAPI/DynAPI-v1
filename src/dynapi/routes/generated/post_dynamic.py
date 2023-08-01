@@ -25,9 +25,8 @@ def post(schemaname: str, tablename: str):
             .insert(*body.obj.values()) \
             .returning("*")
 
-        cursor.execute(str(query))
+        cursor.execute(query)
         conn.commit()
-        g.SQL = str(query)
         return responsify(cursor)
         # return responsify([
         #     {col.name: row[index] for index, col in enumerate(cursor.description)}
