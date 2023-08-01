@@ -20,10 +20,6 @@
         let endOfLogs = false;
         const COLUMNS = ["ID", "Status", "Method", "Client", "User", "Endpoint", "SQL", "Timestamp"];
 
-        function updateVisibleColumns() {
-
-        }
-
         function initColumnControl() {
             const wrapper = $("#ColumnControl");
             for (let col = 0; col < COLUMNS.length; col++) {
@@ -45,13 +41,12 @@
                 })
                 wrapper.append(btn);
             }
-            updateVisibleColumns();
         }
 
         initColumnControl()
 
         function makeLogRow(log) {
-            return $(`<tr></tr>`)
+            const row = $(`<tr></tr>`)
                 .data("id", log.id)
                 .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1 text-center cursor-default'>`).text(log.id))
                 .append(
@@ -73,7 +68,15 @@
                     $(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1 text-center cursor-default'>`)
                         .text(log.timestamp)
                         .attr("title", new Date(log.timestamp).toISOString())
-                )
+                );
+            row.children().each((index, tdEl) => {
+                const td = $(tdEl);
+                const btn = $(`#ColumnControl > button:nth-child(${index + 1})`);
+                if (!btn.data("shown")) {
+                    td.hide();
+                }
+            });
+            return row;
         }
 
         function initAuditLogTable() {
