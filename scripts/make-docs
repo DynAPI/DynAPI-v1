@@ -14,8 +14,24 @@ function development_run() {
 }
 
 function create_plugin_links() {
-    echo "Not Implemented yet"
-    exit 1
+  plugins="plugins"
+  docs="docs"
+  docs_plugins="$docs/plugins"
+  shopt -s nullglob  # dont return the glob-pattern if nothing found
+  shopt -s globstar  # allow recursive globs
+
+  # cleanup of deprecated
+  for existing in "$docs_plugins"/*.md; do
+    if [ "$(basename "$existing")" = "index.md" ]; then
+      continue
+    fi
+    rm "$existing"
+  done
+
+  # creation of new
+  for readme in "$plugins"/**/*.md; do
+    ln -sr "$readme" "$docs_plugins/${readme////_}"
+  done
 }
 
 function print_help() {
