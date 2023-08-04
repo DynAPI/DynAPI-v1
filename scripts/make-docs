@@ -1,5 +1,45 @@
 #!/usr/bin/env bash
 set -e
-cd "$(realpath "$(dirname "$(realpath "$0")")/../docs/")"
+cd "$(realpath "$(dirname "$(realpath "$0")")/../")"
 
-bundle exec jekyll build --source . --destination ../src/dynapi/web/static/docs/
+
+function make_build() {
+  cd "$(realpath "$(dirname "$(realpath "$0")")/../docs/")"
+  bundle exec jekyll build --source . --destination ../src/dynapi/web/static/docs/
+}
+
+function development_run() {
+  cd "$(realpath "$(dirname "$(realpath "$0")")/../docs/")"
+  bundle exec jekyll serve
+}
+
+function create_plugin_links() {
+    echo "Not Implemented yet"
+    exit 1
+}
+
+function print_help() {
+    echo " - build"
+    echo " - development"
+    echo " - links"
+}
+
+
+case "$1" in
+"build")
+  make_build "${@:2}"
+;;
+"dev" | "development")
+  development_run "${@:2}"
+;;
+"links" | "plugin-links")
+  create_plugin_links "${@:2}"
+;;
+"help" | "--help" | "-h" | "")
+  print_help "${@:2}"
+;;
+*)
+  warn "Unknown command '$1'"
+  print_help "${@:2}"
+;;
+esac
