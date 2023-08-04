@@ -11,7 +11,7 @@ PKG=build/pkg
 
 mkdir -p $PKG/DEBIAN
 
-version=$(grep -Pzo '(?s)__version__ = "\K.*?(?=")' "src/dynapi/__main__.py" | tr -d '\0')
+version=$(grep -Pzo '(?s)__version__ = "\K.*?(?=")' "src/dynapi/__version__.py" | tr -d '\0')
 
 echo "
 Package: DynAPI

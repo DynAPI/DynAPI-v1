@@ -4,7 +4,7 @@ cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
 
 . scripts/make-build
 
-version=$(grep -Pzo '(?s)__version__ = "\K.*?(?=")' "src/dynapi/__main__.py" | tr -d '\0')
+version=$(grep -Pzo '(?s)__version__ = "\K.*?(?=")' "src/dynapi/__version__.py" | tr -d '\0')
 
 cp scripts/extra/dynapi.service build/dynapi/
 

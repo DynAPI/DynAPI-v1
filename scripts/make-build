@@ -32,7 +32,7 @@ mkdir -p build/dynapi/dist-info
 mv build/dynapi/*.dist-info build/dynapi/dist-info/
 
 echo "Installing scripts..."
-echo "DynAPI v$(grep -Pzo '(?s)__version__ = "\K.*?(?=")' "src/dynapi/__main__.py" | tr -d '\0') build
+echo "DynAPI v$(grep -Pzo '(?s)__version__ = "\K.*?(?=")' "src/dynapi/__version__.py" | tr -d '\0') build
 Python: $(python3 -V | awk '{print $2}')
 pip:    $(pip3 --version | awk '{print $2}')
 Dependencies Installed:
