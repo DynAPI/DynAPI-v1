@@ -4,6 +4,7 @@ cd "$(realpath "$(dirname "$(realpath "$0")")/../")"
 
 
 function make_build() {
+  create_plugin_links
   cd "$(realpath "$(dirname "$(realpath "$0")")/../docs/")"
   bundle exec jekyll build --source . --destination ../src/dynapi/web/static/docs/
 }
@@ -25,11 +26,13 @@ function create_plugin_links() {
     if [ "$(basename "$existing")" = "index.md" ]; then
       continue
     fi
+    echo "Removing deprecated plugin-readme: ${existing}"
     rm "$existing"
   done
 
   # creation of new
   for readme in "$plugins"/**/*.md; do
+    echo "Creating link for ${readme}"
     ln -sr "$readme" "$docs_plugins/${readme////_}"
   done
 }
