@@ -26,18 +26,16 @@ queue = NewQueue()
 @app.after_request
 def logging(response: flask.Response) -> flask.Response:
     if "/api/" in flask.request.path:
-        try:
-            log: t.Dict[str, t.Any] = {}
-            log["timestamp"] = datetime.now()
-            log["client"] = flask.request.remote_addr
-            log["response_code"] = response.status_code
-            log["path"] = flask.request.path
-            log["method"] = flask.request.method
-            log["SQL"] = getattr(g, "SQL", None)
-            log["user"] = getattr(g, "user", None)
-            queue.put(log)
-        except Exception as exc:
-            print(f"Failed to write log to queue: {type(exc).__name__}: {exc}")
+        queue.put(dict(
+            timestamp=datetime.now(),
+            client=flask.request.remote_addr,
+            response_code=response.status_code,
+            path=flask.request.path,
+            method=flask.request.method,
+            exception_name=getattr(g, "exception_name", None),
+            SQL=getattr(g, "SQL", None),
+            user=getattr(g, "user", None),
+        ))
     return response
 
 
@@ -56,6 +54,7 @@ def create_tables():
                 Column("path", "VARCHAR", nullable=False),
                 Column("SQL", "VARCHAR", nullable=True),
                 Column("response_code", "SMALLINT", nullable=False),
+                Column("exception_name", "VARCHAR", nullable=True),
                 Column("timestamp", "TIMESTAMP", nullable=False))\
             .unique("id") \
             .primary_key("id") \
@@ -72,12 +71,12 @@ def log_queue():
         cursor = conn.cursor()
         schema = Schema(schemaname)
         query = Query.into(schema.__getattr__(tablename)) \
-            .columns("client", "user", "method", "path", "SQL", "response_code", "timestamp")
+            .columns("client", "user", "method", "path", "SQL", "exception_name", "response_code", "timestamp")
 
         while not queue.empty():
-            log = queue.get()
-            query = query.insert(log.get("client"), log.get("user"), log.get("method"), log.get("path"),
-                                 log.get("SQL"), log.get("response_code"), log.get("timestamp"))
+            record = queue.get()
+            query = query.insert(record["client"], record["user"], record["method"], record["path"],
+                                 record["SQL"], record["exception_name"], record["response_code"], record["timestamp"])
             queue.task_done()
 
         cursor.execute(str(query))
