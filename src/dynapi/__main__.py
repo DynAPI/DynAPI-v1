@@ -4,11 +4,11 @@ r"""
 
 """
 from __version__ import __version__  # noqa
+from apiconfig import config
 import atexit
 import secrets
 import os.path as p
 import flask
-from apiconfig import config
 import dynamic_loader
 
 
