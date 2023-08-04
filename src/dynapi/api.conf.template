@@ -22,6 +22,28 @@ threaded=True
 processes=1
 
 
+[logging]
+# level: DEBUG | INFO | WARNING | ERROR | CRITICAL
+# how detailed to log messages should be
+# default: INFO
+;level=INFO
+
+# file: string (path)
+# where to write logs to
+# default: ./logs/dynapi.log
+;file=
+
+# max-bytes: integer
+# log-file size before rotating the logs
+# default: 10485760 => 10Mb
+;max-bytes
+
+# backup-count: integer
+# how many rotated logs-files to keep
+# default: 7
+;backup-count
+
+
 [plugins]
 # [active-plugin-name]: bool
 # control whether or not a plugin should be loaded

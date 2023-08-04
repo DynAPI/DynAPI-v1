@@ -18,11 +18,10 @@ if not p.isdir(p.dirname(log_file)):
 
 handlers = [
     logging.StreamHandler(stream=sys.stdout),
-    logging.handlers.TimedRotatingFileHandler(
+    logging.handlers.RotatingFileHandler(
         filename=log_file,
-        when='midnight',
-        backupCount=config.getint("logging", "backup-count", fallback=5),
-        # utc=True,
+        maxBytes=config.getint("logging", "max-bytes", fallback=10*1024*1024),  # ~10Mb
+        backupCount=config.getint("logging", "backup-count", fallback=7),
     )
 ]
 
