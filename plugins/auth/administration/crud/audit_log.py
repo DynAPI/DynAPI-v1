@@ -16,6 +16,7 @@ schemaname = config.get('auth', 'schema') if config.has_option('auth', 'schema')
 tablename = config.get('auth', 'audit_log_table') if config.has_option('auth', 'audit_log_table') else 'audit_log'
 
 
+# not starting with /api/ to prevent inserting logs
 @admin.get("/audit_log")
 def get_logs():
     body = get_body_config(request)

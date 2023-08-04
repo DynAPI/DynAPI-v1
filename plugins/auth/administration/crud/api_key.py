@@ -3,8 +3,6 @@
 r"""
 
 """
-from apiutil import get_body_config
-from .. import admin
 import http
 import secrets
 import typing as t
@@ -13,7 +11,9 @@ from flask import request
 from apiconfig import config
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from pydantic import dataclasses
-from database import DatabaseConnection, dbutil
+from database import dbutil
+from apiutil import get_body_config
+from .. import admin
 
 
 schemaname = config.get('auth', 'schema') if config.has_option('auth', 'schema') else 'dynapi'

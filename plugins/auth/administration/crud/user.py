@@ -14,8 +14,8 @@ from flask import g
 from apiconfig import config
 from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
 from pydantic import dataclasses
-from database import DatabaseConnection, dbutil
-from .pwutil import generate_password_hash
+from database import dbutil
+from ..util.pwutil import generate_password_hash
 
 
 schemaname = config.get('auth', 'schema') if config.has_option('auth', 'schema') else 'dynapi'
@@ -31,15 +31,18 @@ class NewUserBody:
 
 
 @admin.post("/api/user")
-def create_users():
+def create_user():
+    json_body = flask.request.json
+    if not isinstance(json_body, dict):
+        raise flask.abort(http.HTTPStatus.BAD_REQUEST, description="body is no object")
     try:
-        body = NewUserBody(**flask.request.json)
+        body = NewUserBody(**json_body)
     except (TypeError, ValueError):
         raise flask.abort(http.HTTPStatus.BAD_REQUEST)
     else:
-        roles = [role.lower() for role in body.roles]
+        roles = [role.strip().lower() for role in body.roles if role.strip()]
         passwordhash = base64.b64encode(generate_password_hash(body.password.encode())).decode()
-        with DatabaseConnection() as conn:
+        with flask.g.db_conn as conn:
             cursor = conn.cursor()
             schema = Schema(schemaname)
             query = Query.into(schema.__getattr__(tablename)) \
@@ -84,7 +87,7 @@ def delete_users():
         conn.commit()
         g.SQL = str(query)
         return flask.jsonify([
-            {col.name: row[index] for index, col in enumerate(cursor.description)}
+            {col.name: row[index] for index, col in enumerate(cursor.description) if col.name != "passwordhash"}
             for row in cursor.fetchall()
         ])
 
@@ -95,7 +98,7 @@ def update_users():
         raise flask.abort(http.HTTPStatus.BAD_REQUEST)
 
     body = get_body_config(request)
-    with DatabaseConnection() as conn:
+    with flask.g.db_conn as conn:
         cursor = conn.cursor()
         schema = Schema(schemaname)
         table = Table(tablename)
@@ -103,6 +106,11 @@ def update_users():
             .update(schema.__getattr__(tablename)) \
 
         for attr, value in body.obj.items():
+            if attr == "password":
+                attr = "passwordhash"
+                value = base64.b64encode(generate_password_hash(value.encode())).decode()
+            if isinstance(value, list):
+                value = f"{{{', '.join(value)}}}"
             query = query.set(table.__getattr__(attr), value)
 
         query = query.where(
@@ -116,12 +124,10 @@ def update_users():
         )
 
         query = query.returning("*")
-        print(query)
-        cursor.execute(str(query))
+        cursor.execute(query)
         conn.commit()
-        g.SQL = str(query)
         return flask.jsonify([
-            {col.name: row[index] for index, col in enumerate(cursor.description)}
+            {col.name: row[index] for index, col in enumerate(cursor.description) if col.name != "passwordhash"}
             for row in cursor.fetchall()
         ])
 
@@ -153,9 +159,8 @@ def get_users():
         if body.offset:
             query = query.offset(body.offset)
 
-        cursor.execute(str(query))
-        g.SQL = str(query)
+        cursor.execute(query)
         return flask.jsonify([
-            {col.name: row[index] for index, col in enumerate(cursor.description)}
+            {col.name: row[index] for index, col in enumerate(cursor.description) if col.name != "passwordhash"}
             for row in cursor.fetchall()
         ])
