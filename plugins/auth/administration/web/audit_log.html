@@ -2,11 +2,13 @@
 {% block title %}Admin-Panel - Audit logs{% endblock %}
 {% block content %}
 
-    <div>
-        Log-Count: <span id="audit-log-count"></span>
+    <div class="px-2">
+        <span class="select-none">Log-Count:</span> <span id="audit-log-count"></span>
     </div>
 
-    <div id="ColumnControl" class="flex gap-1 px-5"></div>
+    <div class="px-2 flex gap-1">
+        <span class="select-none">Columns:</span> <div id="ColumnControl" class="flex gap-1"></div>
+    </div>
 
     <div id="AuditLogs">
         <i class="material-icons animate-spin">refresh</i>
@@ -18,7 +20,7 @@
         const pageSize = 100;
         let newLogsAreLoading = false;
         let endOfLogs = false;
-        const COLUMNS = ["ID", "Status", "Method", "Client", "User", "Endpoint", "SQL", "Timestamp"];
+        const COLUMNS = ["ID", "Status", "Method", "Client", "User", "Endpoint", "SQL", "Exception-Name", "Timestamp"];
 
         function initColumnControl() {
             const wrapper = $("#ColumnControl");
@@ -48,26 +50,45 @@
         function makeLogRow(log) {
             const row = $(`<tr></tr>`)
                 .data("id", log.id)
-                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1 text-center cursor-default'>`).text(log.id))
-                .append(
-                    $(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1 text-center cursor-default'>`)
-                        .text(log.response_code)
-                        .css("color", HttpStatusColorMap[Math.round(log.response_code / 100)])
-                        .attr("title", HttpStatusMap[log.response_code])
+                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1 text-center cursor-default'>`)
+                    .text(log.id)
+                    .data("value", log.id)
                 )
-                .append(
-                    $(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1 text-center cursor-default'>`)
-                        .text(log.method)
-                        .css("color", MethodColorMap[log.method])
+                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1 text-center cursor-default'>`)
+                    .text(log.response_code)
+                    .data("value", log.response_code)
+                    .css("color", HttpStatusColorMap[Math.round(log.response_code / 100)])
+                    .attr("title", HttpStatusMap[log.response_code])
                 )
-                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1'>`).text(log.client))
-                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1'>`).text(log.user))
-                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1'>`).text(log.path))
-                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1'>`).text(log.SQL))
-                .append(
-                    $(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1 text-center cursor-default'>`)
-                        .text(log.timestamp)
-                        .attr("title", new Date(log.timestamp).toISOString())
+                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1 text-center cursor-default'>`)
+                    .text(log.method)
+                    .data("value", log.method)
+                    .css("color", MethodColorMap[log.method])
+                )
+                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1'>`)
+                    .text(log.client)
+                    .data("value", log.client)
+                )
+                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1'>`)
+                    .text(log.user)
+                    .data("value", log.user)
+                )
+                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1'>`)
+                    .text(log.path)
+                    .data("value", log.path)
+                )
+                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1'>`)
+                    .text(log.SQL)
+                    .data("value", log.SQL)
+                )
+                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1'>`)
+                    .text(log.exception_name)
+                    .data("value", log.exception_name)
+                )
+                .append($(`<td class='border bg-gray-700 break-words max-w-[30vw] border-transparent rounded-md shadow-lg px-1 text-center cursor-default'>`)
+                    .text(log.timestamp)
+                    .data("value", log.timestamp)
+                    .attr("title", new Date(log.timestamp).toISOString())
                 );
             row.children().each((index, tdEl) => {
                 const td = $(tdEl);
@@ -89,19 +110,13 @@
                 },
                 success: function (logs, status, xhr) {
                     const table = $(`<table class='table-auto border-separate border-spacing-1.5 w-full'></table>`);
-                    table.append(
-                        $(`<thead>`).append(
-                            $(`<tr></tr>`)
-                                .append($(`<th class="select-none">`).text("ID"))
-                                .append($(`<th class="select-none">`).text("Status"))
-                                .append($(`<th class="select-none">`).text("Method"))
-                                .append($(`<th class="select-none">`).text("Client"))
-                                .append($(`<th class="select-none">`).text("User"))
-                                .append($(`<th class="select-none">`).text("Endpoint"))
-                                .append($(`<th class="select-none">`).text("SQL"))
-                                .append($(`<th class="select-none">`).text("Timestamp"))
+                    const thead = $(`<thead>`).appendTo(table);
+                    const tr = $(`<tr>`).appendTo(thead);
+                    for (let colName of COLUMNS) {
+                        tr.append(
+                            $(`<th class="select-none">`).text(colName)
                         )
-                    )
+                    }
                     const body = $(`<tbody>`).appendTo(table);
                     for (let log of logs) {
                         body.append(makeLogRow(log))
@@ -130,6 +145,9 @@
                     for (let log of logs) {
                         table.prepend(makeLogRow(log))
                     }
+                    const counter = $("#audit-log-count");
+                    const logCount = counter.data("count") + logs.length;
+                    counter.text(logCount).data("count", logCount);
                 }
             })
         }
@@ -185,7 +203,8 @@
             method: "GET",
             url: "{{ url_for(".count_stats") }}",
             success: function (stats) {
-                $("#audit-log-count").text(stats.get_logss_count)
+                const logCount = stats.audit_logs_count;
+                $("#audit-log-count").text(logCount).data("count", logCount);
             }
         })
 </script>
