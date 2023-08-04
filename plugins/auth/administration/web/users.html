@@ -2,81 +2,221 @@
 {% block title %}Admin Panel - Users{% endblock %}
 {% block content %}
 
-    <div id="userData">
+    <h2 class="text-center font-bold text-2xl">Users</h2>
+
+    <div id="UserData">
         <i class="material-icons animate-spin">refresh</i>
     </div>
 
+    <button id="AddButton" class='mx-1 cursor-pointer bg-gray-700 text-gray-300 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center'>
+        <i class="material-icons">add</i>
+    </button>
+
     <script type="module">
-        function makeTableCell(value) {
-            return $(`<td class='border bg-gray-700 border-transparent rounded-md shadow-lg px-1'></td>`).text(value);
+        function makeTableCell() {
+            return $(`<td class='bg-gray-700 rounded-md shadow-lg px-1'>`);
+        }
+
+        function makeUserRow(user) {
+            const row = $(`<tr>`)
+                .append(makeTableCell()
+                    .append($(`<span>`).text(user.username))
+                    .append($(`<i class="material-icons ml-1 text-sm text-yellow-500 opacity-70">${user.roles.includes("admin") ? "security" : ""}</i>`)
+                        .attr("title", "This user can login into the administration-panel")
+                    )
+                )
+                .append(makeTableCell().text("•••••"))
+                .append(makeTableCell().text(user.description))
+                .append(makeTableCell().text(user.roles))
+                .append(
+                    $(`<td class='cursor-pointer bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center max-w-fit'>`)
+                        .append(`<i class="material-icons">edit</i>`)
+                        .on("click", () => {
+                            row.replaceWith(makeEditUserRow(user))
+                        })
+                )
+                .append(
+                   $(`<td class='cursor-pointer bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center max-w-fit'>`)
+                       .append(`<i class="material-icons">delete_forever</i>`)
+                       .on("click", () => {
+                           if (!window.confirm(`Are you sure you want to delete ${user.username}`)) {
+                               return;
+                           }
+                           $.ajax({
+                               method: "DELETE",
+                               url: "{{ url_for(".delete_users") }}",
+                               contentType: 'application/json',
+                               data: JSON.stringify({
+                                   filters: [[["username", "=", user.username]]],
+                               }),
+                               success: () => {
+                                   row.children().addClass("bg-red-800");
+                                   row.fadeTo(300, 0.0, () => row.remove());
+                               },
+                               error: () => {
+                                   window.alert(`Something went wrong while deleting ${user.username}`);
+                               },
+                           })
+                       })
+                );
+            return row;
         }
 
         function updateUsersTable() {
             $.ajax({
                 url: "{{ url_for(".get_users") }}",
                 success: function (users, status, xhr) {
-                    const table = $(`<table class='table-auto border-separate border-spacing-1.5 w-full'></table>`);
-
+                    const table = $(`<table class='table-auto border-separate border-spacing-1.5 w-full'>`);
                     table.append(
-                        $(`<tr>`)
-                            .append($(`<th colspan="5">`)
-                                .append(`<h2 class="text-center font-bold text-2xl">Users</h2>`)
+                        $(`<thead>`)
+                            .append($(`<tr>`)
+                                .append($(`<th>`).text("Username"))
+                                .append($(`<th>`).text("Password"))
+                                .append($(`<th>`).text("Description"))
+                                .append($(`<th>`).text("Roles"))
+                                .append($(`<th>`))
+                                .append($(`<th>`))
                             )
                     )
-                    table.append(
-                        $(`<tr></tr>`)
-                            .append($(`<th>`).text("Username"))
-                            .append($(`<th>`).text("Description"))
-                            .append($(`<th>`).text("Roles"))
-                            .append($(`<th>`))
-                            .append($(`<th>`))
-                    )
+                    const tbody = $(`<tbody>`).appendTo(table);
+                    users.sort((a, b) => a.username.localeCompare(b.username));
                     for (let user of users) {
-                        const row = $(`<tr></tr>`)
-                                .append(makeTableCell(user.username))
-                                .append(makeTableCell(user.description))
-                                .append(makeTableCell(user.roles))
-                                .append(
-                                    $(`<td class='cursor-pointer bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center max-w-fit'>`)
-                                        .append(`<i class="material-icons">edit</i>`)
-                                )
-                                .append(
-                                   $(`<td class='cursor-pointer bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center max-w-fit'>`)
-                                       .append(`<i class="material-icons">delete_forever</i>`)
-                                       .on("click", () => {
-                                           if (!confirm(`Are you sure you want to delete ${user.username}`)) {
-                                               return;
-                                           }
-                                           $.ajax({
-                                               method: "DELETE",
-                                               url: "{{ url_for(".delete_users") }}",
-                                               contentType: 'application/json',
-                                               data: JSON.stringify({
-                                                   filters: [[["username", "=", user.username]]]
-                                               }),
-                                               success: () => {
-                                                   row.children().addClass("bg-red-800");
-                                                   row.fadeTo(300, 0.0, () => row.remove());
-                                               },
-                                               error: () => {
-                                                   alert(`Something went wrong while deleting ${user.username}`)
-                                               },
-                                           })
-                                       })
-                                )
-                        table.append(row)
+                        tbody.append(makeUserRow(user));
                     }
-                    table.append(
-                        $(`<tr>`)
-                            .append(`<td colspan='5' class='cursor-pointer material-icons bg-gray-700 text-gray-300 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center'>add</td>`)
-                    )
-                    $("#userData").html(table);
+                    $("#UserData").html(table);
                 }
             });
         }
 
-        {#row.on("click", () => assignRow.toggle());#}
-
         updateUsersTable();
+
+        function makeEditUserRow(user) {
+            const row = $(`<tr>`);
+            const usernameInput = $(`<td><input type="text" required pattern=".+" placeholder="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:placeholder:opacity-30 hover:placeholder:opacity-30" /></td>`)
+                .appendTo(row)
+                .find("input")
+                .val(user.username);
+            const passwordInput = $(`<td><input type="password" required pattern=".+" placeholder="•••••" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:placeholder:opacity-30 hover:placeholder:opacity-30" /></td>`)
+                .appendTo(row)
+                .find("input");
+            const descriptionInput = $(`<td><input type="text" placeholder="idk... is a weird guy" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:placeholder:opacity-30 hover:placeholder:opacity-30" /></td>`)
+                .appendTo(row)
+                .find("input")
+                .val(user.description);
+            const rolesInput = $(`<td><input type="text" placeholder="admin, guest, .." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:placeholder:opacity-30 hover:placeholder:opacity-30" /></td>`)
+                .appendTo(row)
+                .find("input")
+                .val(user.roles.join(", "));
+            row.append($(`<td class="cursor-pointer bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center max-w-fit">`)
+                .append($(`<button class="material-icons">save</button>`)
+                    .on("click", () => {
+                        const username  = usernameInput.val().trim();
+                        const pw = passwordInput.val().trim();
+                        const description  = descriptionInput.val().trim();
+                        const roles  = rolesInput.val().split(/\s*[,;]\s*/).filter(role => !!role.length);
+                        row.find(":not(td)").prop("disabled", true);
+                        $.ajax({
+                            method: "PUT",
+                            url: "{{ url_for(".update_users") }}",
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                filters: [
+                                    [
+                                        ["username", "=", user.username],
+                                    ]
+                                ],
+                                obj: {
+                                    username: username,
+                                    password: pw.length ? pw : undefined,
+                                    description: description,
+                                    roles: roles,
+                                },
+                            }),
+                            success: (newUsers) => {
+                                const newUser = newUsers[0];
+                                row.replaceWith(makeUserRow(newUser));
+                            },
+                            error: () => {
+                                window.alert(`Failed to update user '${user.username}'`);
+                            },
+                            complete: () => {
+                                row.find(":not(td)").prop("disabled", false);
+                            }
+                        })
+                    })
+                )
+            );
+            row.append($(`<td class="cursor-pointer bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center max-w-fit">`)
+                .append($(`<button class="material-icons">backspace</button>`)
+                    .on("click", () => {
+                        row.replaceWith(makeUserRow(user));
+                    })
+                )
+            );
+            return row;
+        }
+
+        function addCreateUserRow() {
+            const row = $(`<tr>`);
+            const usernameInput = $(`<td><input type="text" required pattern=".+" placeholder="username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:placeholder:opacity-30 hover:placeholder:opacity-30" /></td>`)
+                .appendTo(row)
+                .find("input");
+            const passwordInput = $(`<td><input type="password" required pattern=".+" placeholder="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:placeholder:opacity-30 hover:placeholder:opacity-30" /></td>`)
+                .appendTo(row)
+                .find("input");
+            const descriptionInput = $(`<td><input type="text" placeholder="idk... is a weird guy" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:placeholder:opacity-30 hover:placeholder:opacity-30" /></td>`)
+                .appendTo(row)
+                .find("input");
+            const rolesInput = $(`<td><input type="text" placeholder="admin, guest, .." class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:placeholder:opacity-30 hover:placeholder:opacity-30" /></td>`)
+                .appendTo(row)
+                .find("input");
+            row.append($(`<td class="cursor-pointer bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center max-w-fit">`)
+                .append($(`<button class="material-icons">save</button>`)
+                    .on("click", () => {
+                        const username  = usernameInput.val().trim();
+                        const pw = passwordInput.val().trim();
+                        const description  = descriptionInput.val().trim();
+                        const roles  = rolesInput.val().split(/\s*[,;]\s*/).filter(role => !!role.length);
+                        row.find(":not(td)").prop("disabled", true);
+                        $.ajax({
+                            method: "POST",
+                            url: "{{ url_for(".create_user") }}",
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                username: username,
+                                password: pw,
+                                description: description,
+                                roles: roles,
+                            }),
+                            success: (newUser) => {
+                                row.remove();
+                                $(`#UserData tbody`).append(makeUserRow(newUser));
+                            },
+                            error: () => {
+                                window.alert(`Failed to create new user '${username}'`);
+                            },
+                            complete: () => {
+                                row.find(":not(td)").prop("disabled", false);
+                            }
+                        })
+                    })
+                )
+            );
+            row.append($(`<td class="cursor-pointer bg-gray-700 rounded-md shadow-lg hover:text-gray-700 hover:bg-gray-300 hover:shadow-inner-lg text-center max-w-fit">`)
+                .append($(`<button class="material-icons">backspace</button>`)
+                    .on("click", () => {
+                        row.remove();
+                    })
+                )
+            );
+            $("#UserData > table > tbody").append(row);
+        }
+
+        $("#AddButton")
+            .on("click", () => {
+                addCreateUserRow();
+            })
+
+        addCreateUserRow();
     </script>
 {% endblock %}
