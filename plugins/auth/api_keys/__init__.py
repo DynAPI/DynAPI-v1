@@ -27,7 +27,7 @@ def verify_authorization():
         raise flask.abort(http.HTTPStatus.UNAUTHORIZED)
     g.user = api_key
 
-    with DatabaseConnection() as conn:
+    with flask.g.db_conn as conn:
         cursor = conn.cursor()
         table = Table(tablename)
         query = Query \
