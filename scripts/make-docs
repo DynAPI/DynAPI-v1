@@ -1,20 +1,30 @@
 #!/usr/bin/env bash
 set -e
-cd "$(realpath "$(dirname "$(realpath "$0")")/../")"
+THIS="$(realpath "$(dirname "$(realpath "$0")")/../")"
+cd "$THIS"
+
+
+function warn() {
+    echo -e -n "${FGY}Warning:${FG} "
+    echo "$@"
+}
 
 
 function make_build() {
-  create_plugin_links
-  cd "$(realpath "$(dirname "$(realpath "$0")")/../docs/")"
+  create_plugin_links --copy
+  cd "$THIS/docs/"
   bundle exec jekyll build --source . --destination ../src/dynapi/web/static/docs/
+  create_plugin_links
 }
 
 function development_run() {
-  cd "$(realpath "$(dirname "$(realpath "$0")")/../docs/")"
+  cd "$THIS/docs/"
   bundle exec jekyll serve
 }
 
 function create_plugin_links() {
+  cd "$THIS"
+
   plugins="plugins"
   docs="docs"
   docs_plugins="$docs/plugins"
@@ -33,7 +43,13 @@ function create_plugin_links() {
   # creation of new
   for readme in "$plugins"/**/*.md; do
     echo "Creating link for ${readme}"
-    ln -sr "$readme" "$docs_plugins/${readme////_}"
+    src="$readme"
+    dist="$docs_plugins/${readme////_}"
+    if [ "$1" = "--copy" ]; then
+      cp -L "$src" "$dist"
+    else
+      ln -sr "$src" "$dist"
+    fi
   done
 }
 
