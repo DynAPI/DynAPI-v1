@@ -2,6 +2,8 @@
 .idea/
 src/dynapi/api.conf
 src/dynapi/plugins/
+docs/plugins/*
+!docs/plugins/index.md
 
 
 # Copied from https://github.com/github/gitignore/blob/main/Jekyll.gitignore
