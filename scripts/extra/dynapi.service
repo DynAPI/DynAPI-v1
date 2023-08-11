@@ -5,7 +5,7 @@ Description=Dynamic API for (postgresql) Databases
 [Service]
 Type=idle
 WorkingDirectory=/opt/dynapi/
-ExecStart=/usr/bin/python3 /opt/dynapi/__main__.py
+ExecStart=/usr/bin/python3 -B -O /opt/dynapi/__main__.py
 Restart=on-failure
 RestartSec=3
 
