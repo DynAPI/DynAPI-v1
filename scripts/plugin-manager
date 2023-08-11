@@ -223,6 +223,7 @@ case "$1" in
 ;;
 *)
   warn "Unknown command '$1'"
-  print_help "${@:2}"
+  print_help
+  exit 1
 ;;
 esac
