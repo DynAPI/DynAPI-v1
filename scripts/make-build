@@ -41,11 +41,15 @@ pip:    $(pip3 --version | awk '{print $2}')
 Dependencies Installed:
 $(echo "$dist_infos" | sed 's/\.dist-info$//' | awk -F- '{print $1,$2}' | column -t | sed 's/^/ - /')
 Plugins-Folder:
-$(find build/dynapi/plugins/* -maxdepth 0 -printf '%f\n' | sed 's/^/ - /')
+$(find build/dynapi/plugins/* -maxdepth 0 -type d -printf '%f\n' 2> /dev/null | sed 's/^/ - /')
 OS Detail:
 $(sed 's/^/ /' /etc/os-release)
 " > "build/dynapi/meta.info"
-cp "scripts/extra/dynapi.run.sh" "build/dynapi/dynapi.run"
-chmod +x "build/dynapi/dynapi.run"
+
+cp scripts/extra/dynapi.run.sh build/dynapi/dynapi.run
+chmod +x build/dynapi/dynapi.run
+
+cp scripts/extra/plugin-manager-deployed.sh build/dynapi/plugin-manager
+chmod +x build/dynapi/plugin-manager
 
 echo "Build successful"
