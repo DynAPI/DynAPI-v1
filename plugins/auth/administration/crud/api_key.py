@@ -9,7 +9,7 @@ import typing as t
 import flask
 from flask import request
 from apiconfig import config
-from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
+from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion, FormatParameter
 from pydantic import dataclasses
 from database import dbutil
 from apiutil import get_body_config
@@ -45,7 +45,8 @@ def create_api_key():
                 .columns("api_key", "description", "roles") \
                 .insert(body.api_key or secrets.token_hex(), body.description, roles) \
                 .returning("*")
-            cursor.execute(str(query))
+
+            cursor.execute(query)
             row = cursor.fetchone()
             conn.commit()
             return flask.jsonify({
@@ -68,17 +69,17 @@ def delete_api_key():
             .from_(schema.__getattr__(tablename)) \
             .delete() \
             .where(
-            Criterion.any(
-                Criterion.all(
-                    dbutil.OPMAP[op.lower()](table.__getattr__(attr), value)
-                    for attr, op, value in ands
+                Criterion.any(
+                    Criterion.all(
+                        dbutil.OPMAP[op.lower()](table.__getattr__(attr), value)
+                        for attr, op, value in ands
+                    )
+                    for ands in body.filters
                 )
-                for ands in body.filters
-            )
-        ) \
+            ) \
             .returning("*")
-        cursor.execute(str(query))
 
+        cursor.execute(query)
         conn.commit()
         return flask.jsonify([
             {col.name: row[index] for index, col in enumerate(cursor.description)}
@@ -100,8 +101,8 @@ def update_api_key():
         query = Query \
             .update(schema.__getattr__(tablename)) \
 
-        for attr, value in body.obj.items():
-            query = query.set(table.__getattr__(attr), value)
+        for attr in body.obj.keys():
+            query = query.set(table.__getattr__(attr), FormatParameter())
 
         query = query.where(
             Criterion.any(
@@ -114,8 +115,7 @@ def update_api_key():
         )
 
         query = query.returning("*")
-        print(query)
-        cursor.execute(str(query))
+        cursor.execute(query, body.obj.values())
         conn.commit()
         return flask.jsonify([
             {col.name: row[index] for index, col in enumerate(cursor.description)}
@@ -136,21 +136,21 @@ def get_api_key():
             .from_(schema.__getattr__(tablename)) \
             .select(*body.columns) \
             .where(
-            Criterion.any(
-                Criterion.all(
-                    dbutil.OPMAP[op.lower()](table.__getattr__(attr), value)
-                    for attr, op, value in ands
+                Criterion.any(
+                    Criterion.all(
+                        dbutil.OPMAP[op.lower()](table.__getattr__(attr), value)
+                        for attr, op, value in ands
+                    )
+                    for ands in body.filters
                 )
-                for ands in body.filters
             )
-        )
 
         if body.limit:
             query = query.limit(body.limit)
         if body.offset:
             query = query.offset(body.offset)
 
-        cursor.execute(str(query))
+        cursor.execute(query)
         return flask.jsonify([
             {col.name: row[index] for index, col in enumerate(cursor.description)}
             for row in cursor.fetchall()

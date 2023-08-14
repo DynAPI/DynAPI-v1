@@ -5,9 +5,9 @@ r"""
 """
 from __main__ import app
 import flask
-from flask import request, g
-from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion
-from database import DatabaseConnection, dbutil
+from flask import request
+from pypika import PostgreSQLQuery as Query, Schema, Table, Criterion, FormatParameter
+from database import dbutil
 import apiconfig
 from apiutil import makespec, get_body_config, responsify
 
@@ -23,8 +23,8 @@ def put(schemaname: str, tablename: str):
         query = Query \
             .update(schema.__getattr__(tablename)) \
 
-        for attr, value in body.obj.items():
-            query = query.set(table.__getattr__(attr), value)
+        for attr in body.obj.keys():
+            query = query.set(table.__getattr__(attr), FormatParameter())
 
         query = query.where(
                 Criterion.any(
@@ -37,7 +37,7 @@ def put(schemaname: str, tablename: str):
             )
 
         query = query.returning("*")
-        cursor.execute(query)
+        cursor.execute(query, body.obj.values())
         conn.commit()
         return responsify(cursor)
         # return responsify([

@@ -59,7 +59,7 @@ def create_tables():
             .unique("id") \
             .primary_key("id") \
             .if_not_exists()
-        cursor.execute(str(query))
+        cursor.execute(query)
         conn.commit()
 
 
