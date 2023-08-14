@@ -21,7 +21,8 @@ bucket_funcs = dict(
 
 
 limiter = flask_limiter.Limiter(
-    enabled=config.getboolean("plugin:ratelimit", "enabled", fallback=True),  # kill-switch
+    enabled=True,  # use [plugins].security_ratelimit=False
+    # enabled=config.getboolean("plugin:ratelimit", "enabled", fallback=True),  # kill-switch
     app=app,
     key_func=bucket_funcs[config.get("plugin:ratelimit", "key_func", fallback="remote_address")],
     storage_uri="memory://",
