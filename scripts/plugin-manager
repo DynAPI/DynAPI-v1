@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+shopt -s nullglob  # dont return the glob-pattern if nothing found
 cd "$(realpath "$(dirname "$(realpath "$0")")/..")"
 
 if [[ "$UNSAFE" = "true" ]]; then
@@ -37,10 +38,7 @@ function warn() {
 function list_plugins() {
   listed=""
 
-  for module in "$SOURCE"/**/*/__init__.py; do
-    if [[ ! -f "${module}" ]]; then
-      continue
-    fi
+  for module in "$SOURCE"/*/*/__init__.py; do
     folder=$(dirname "${module}")
 
     name="${folder#"$SOURCE/"}"
@@ -85,10 +83,18 @@ function enable_plugin() {
   target="$TARGET/${plugin////_}"
   if [ -L "$target" ]; then
     echo "Plugin '$1' is already active"
-    return 1
+    return 0
   fi
   ln -r -s "$source" "$target"
   echo "Successfully enabled '$1'"
+}
+
+function enable_all_plugins() {
+  for module in "$SOURCE"/*/*/__init__.py; do
+    folder=$(dirname "${module}")
+    plugin="${folder#"$SOURCE/"}"
+    enable_plugin "$plugin"
+  done
 }
 
 function disable_plugin() {
@@ -100,10 +106,18 @@ function disable_plugin() {
   target="$TARGET/${plugin////_}"
   if [ ! -L "$target" ]; then
     echo "Plugin '$1' is not active"
-    return 1
+    return 0
   fi
   rm "$target"
   echo "Successfully disabled '$1'"
+}
+
+function disable_all_plugins() {
+  for module in "$SOURCE"/*/*/__init__.py; do
+    folder=$(dirname "${module}")
+    plugin="${folder#"$SOURCE/"}"
+    disable_plugin "$plugin"
+  done
 }
 
 function activate_plugin() {
@@ -116,7 +130,7 @@ function activate_plugin() {
   target="$TARGET/${plugin////_}"
   if [ -f "$target" ]; then
     echo "Plugin '$1' is already active"
-    return 1
+    return 0
   fi
   if [[ -f "$target/dependencies" ]]; then
     $PIP install -q -r "$source/dependencies"
@@ -124,6 +138,14 @@ function activate_plugin() {
   echo "Installed plugin dependencies"
   ln -r -s "$source" "$target"
   echo "Successfully activated '$1'"
+}
+
+function activate_all_plugins() {
+  for module in "$SOURCE"/*/*/__init__.py; do
+    folder=$(dirname "${module}")
+    plugin="${folder#"$SOURCE/"}"
+    activate_plugin "$plugin"
+  done
 }
 
 function deactivate_plugin() {
@@ -135,7 +157,7 @@ function deactivate_plugin() {
   target="$TARGET/${plugin////_}"
   if [ ! -L "$target" ]; then
     echo "Plugin '$1' is not active"
-    return 1
+    return 0
   fi
   if [[ -f "$target/dependencies" ]]; then
     if command -v pip-autoremove &> /dev/null; then
@@ -150,22 +172,30 @@ function deactivate_plugin() {
   echo "Successfully deactivated '$1'"
 }
 
+function deactivate_all_plugins() {
+  for module in "$SOURCE"/*/*/__init__.py; do
+    folder=$(dirname "${module}")
+    plugin="${folder#"$SOURCE/"}"
+    deactivate_plugin "$plugin"
+  done
+}
+
 function fix_dependencies() {
-    for depfile in "$TARGET"/*/dependencies; do
-      if [ ! -f "$depfile" ]; then
-        continue
-      fi
-      $PIP install -q -r "$depfile"
-    done
-    echo "Plugin-Dependencies should be up to date now"
+  for depfile in "$TARGET"/*/dependencies; do
+    if [ ! -f "$depfile" ]; then
+      continue
+    fi
+    $PIP install -q -r "$depfile"
+  done
+  echo "Plugin-Dependencies should be up to date now"
 }
 
 function print_help() {
-  echo "plugin-manager {help,show-info,list,enable,disable,activate,deactivate,fix-dependencies}"
+  echo "plugin-manager {help,show-info,list,enable(-all),disable(-all),activate(-all),deactivate(-all),fix-dependencies}"
   echo "plugin-manager help"
   echo "    shows this message"
   echo "plugin-manager show-info"
-  echo "    shows some meaningful messages"
+  echo "    shows some important information"
   echo "plugin-manager list [query]"
   echo "    shows available plugins and their status"
   echo "plugin-manager enable <plugin-name>"
@@ -175,6 +205,8 @@ function print_help() {
   echo "    disable a plugin to be loaded (but doesn't uninstall dependencies)"
   echo "plugin-manager activate <plugin-name>"
   echo "    enable a plugin and install its dependencies"
+  echo "plugin-manager enable-all|disable-all|activate-all|disable-all"
+  echo "    enable|disable|activate|deactivate all plugins"
   echo "plugin-manager deactivate <plugin-name>"
   echo "    disable a plugin and uninstall its dependencies"
   echo "plugin-manager fix-dependencies"
@@ -187,6 +219,7 @@ function print_info() {
     "The problem comes when a dependency has a sub-dependency." \
     "With pip this doesn't get properly resolved." \
     "If pip-autoremove is installed it is used instead of pip and properly removed the sub-dependencies." \
+    "(pip install pip-autoremove)" \
     | fold -sw "$(get_width)"
 
   print_centered "virtualenv"
@@ -203,14 +236,26 @@ case "$1" in
 "enable")
   enable_plugin "${@:2}"
 ;;
+"enable-all" | "enable-all-plugins")
+  enable_all_plugins "${@:2}"
+;;
 "disable")
   disable_plugin "${@:2}"
+;;
+"disable-all" | "disable-all-plugins")
+  disable_all_plugins "${@:2}"
 ;;
 "activate")
   activate_plugin "${@:2}"
 ;;
+"activate-all" | "activate-all-plugins")
+  activate_all_plugins "${@:2}"
+;;
 "deactivate")
   deactivate_plugin "${@:2}"
+;;
+"deactivate-all" | "deactivate-all-plugins")
+  deactivate_all_plugins "${@:2}"
 ;;
 "fix-deps" | "fix-dependencies")
   fix_dependencies "${@:2}"
@@ -218,7 +263,7 @@ case "$1" in
 "info" | "show-info")
   print_info "${@:2}"
 ;;
-"help" | "--help" | "-h" | "")
+"help" | "--help" | "-h")
   print_help "${@:2}"
 ;;
 *)

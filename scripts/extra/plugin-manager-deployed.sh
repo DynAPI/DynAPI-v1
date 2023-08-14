@@ -5,6 +5,7 @@
 # build for your specific needs. Otherwise use the [plugins] section in api.conf to control which plugins are loaded.  #
 ########################################################################################################################
 set -e
+shopt -s nullglob  # dont return the glob-pattern if nothing found
 THIS="$(realpath "$(dirname "$(realpath "$0")")")"
 cd "$THIS"
 
@@ -41,6 +42,12 @@ function enable_plugin() {
   echo "Plugin '$plugin' was enabled"
 }
 
+function enable_all_plugins() {
+  for plugin in plugins-disabled/*; do
+    enable_plugin "$plugin"
+  done
+}
+
 function disable_plugin() {
   plugin="${1////_}"
   if [ ! -d plugins/"$plugin" ]; then
@@ -54,6 +61,12 @@ function disable_plugin() {
   fi
   mv plugins/"$plugin" plugins-disabled/"$plugin"
   echo "Plugin '$plugin' was disabled"
+}
+
+function disable_all_plugins() {
+  for plugin in plugins/*; do
+    disable_plugin "$plugin"
+  done
 }
 
 function print_help() {
@@ -70,8 +83,14 @@ case "$1" in
 "enable")
   enable_plugin "${@:2}"
 ;;
+"enable-all")
+  enable_all_plugins "${@:2}"
+;;
 "disable")
   disable_plugin "${@:2}"
+;;
+"disable-all")
+  disable_all_plugins "${@:2}"
 ;;
 "help" | "--help")
   print_help "${@:2}"

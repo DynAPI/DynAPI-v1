@@ -41,7 +41,7 @@ function create_plugin_links() {
   done
 
   # creation of new
-  for readme in "$plugins"/**/*.md; do
+  for readme in "$plugins"/*/*.md; do
     echo "Creating link for ${readme}"
     src="$readme"
     dist="$docs_plugins/${readme////_}"
