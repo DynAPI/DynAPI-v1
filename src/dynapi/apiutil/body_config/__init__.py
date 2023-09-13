@@ -57,7 +57,7 @@ def get_body_config(request: flask.Request) -> BodyConfig:
         conf.update(request.json)
     elif request.mimetype:
         raise flask.abort(
-            status=http.HTTPStatus.BAD_REQUEST,
+            code=http.HTTPStatus.BAD_REQUEST,
             description="Body is not JSON",
         )
     conf.setdefault('filters', [])
